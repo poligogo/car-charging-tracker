@@ -1,0 +1,506 @@
+:root {
+  --ios-background: #f2f2f7;
+  --ios-card-background: #ffffff;
+  --ios-primary: #007aff;
+  --ios-secondary: #5856d6;
+  --ios-success: #34c759;
+  --ios-warning: #ff9500;
+  --ios-danger: #ff3b30;
+  --ios-gray: #8e8e93;
+  --ios-border-radius: 10px;
+  --ios-blur: blur(20px);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  width: 100vw;
+  overflow-x: hidden;
+  background-color: var(--ios-background);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.adm-tab-bar {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: var(--ios-blur);
+  border-top: 0.5px solid rgba(0, 0, 0, 0.1);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.adm-tab-bar-item {
+  color: var(--ios-gray);
+  font-size: 10px;
+  padding: 4px 0;
+}
+
+.adm-tab-bar-item-active {
+  color: var(--ios-primary);
+}
+
+.tesla-home {
+  min-height: 100vh;
+  height: 100vh;
+  width: 100vw;
+  background-color: #000;
+  color: #fff;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.vehicle-display {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  position: relative;
+  width: 100%;
+  max-height: 60vh;
+}
+
+.vehicle-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  margin-bottom: 20px;
+}
+
+.vehicle-name {
+  font-size: 34px;
+  font-weight: 700;
+  margin: 0;
+  text-align: center;
+  color: #fff;
+  letter-spacing: -0.5px;
+}
+
+.stats-container {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: var(--ios-blur);
+  border-radius: 24px 24px 0 0;
+  padding: 24px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.stats-item {
+  text-align: center;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  backdrop-filter: var(--ios-blur);
+}
+
+.stats-value {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #fff;
+}
+
+.stats-label {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+}
+
+.adm-list {
+  background: var(--ios-card-background);
+  border-radius: var(--ios-border-radius);
+  margin: 12px;
+  overflow: hidden;
+}
+
+.adm-list-header {
+  font-size: 20px;
+  font-weight: 600;
+  padding: 16px;
+  margin: 0;
+  color: #000;
+}
+
+.adm-list-item {
+  padding: 16px;
+  border-bottom: 0.5px solid rgba(0, 0, 0, 0.1);
+}
+
+.adm-list-item:last-child {
+  border-bottom: none;
+}
+
+.adm-button {
+  border-radius: 12px;
+  font-weight: 600;
+  padding: 12px 24px;
+  transition: all 0.2s ease;
+}
+
+.adm-button-primary {
+  background: var(--ios-primary);
+  color: white;
+}
+
+.adm-button-default {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--ios-primary);
+}
+
+.adm-form {
+  background: var(--ios-card-background);
+  border-radius: var(--ios-border-radius);
+  padding: 16px;
+  margin: 12px;
+}
+
+.adm-form-item-label {
+  font-weight: 500;
+  color: var(--ios-gray);
+}
+
+.adm-input {
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 12px;
+  font-size: 16px;
+}
+
+.adm-popup {
+  border-radius: 24px 24px 0 0;
+  overflow: hidden;
+}
+
+.adm-popup-body {
+  background: var(--ios-card-background);
+  padding: 16px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+}
+
+.records-page,
+.statistics-page,
+.settings-page {
+  padding: 16px;
+  padding-top: calc(16px + env(safe-area-inset-top));
+  padding-bottom: calc(50px + env(safe-area-inset-bottom));
+  background: var(--ios-background);
+}
+
+h1 {
+  font-size: 34px;
+  font-weight: 700;
+  margin: 0 0 24px 0;
+  letter-spacing: -0.5px;
+  color: #000;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ios-background: #000000;
+    --ios-card-background: #1c1c1e;
+  }
+
+  h1 {
+    color: #fff;
+  }
+
+  .adm-list-header {
+    color: #fff;
+  }
+
+  .adm-button-default {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .adm-input {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+}
+
+/* 時間選擇器樣式 */
+.picker-container {
+  padding: 16px;
+  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--ios-card-background);
+}
+
+.picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 0 16px;
+}
+
+.picker-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--adm-color-text);
+}
+
+.adm-picker {
+  height: 240px;
+  --height: 240px;
+  --item-height: 34px;
+}
+
+.adm-picker-view {
+  height: 240px;
+}
+
+.adm-picker-view-column {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    transparent 20%,
+    white 40%,
+    white 60%,
+    transparent 80%,
+    transparent
+  );
+}
+
+.adm-picker-view-column-item {
+  font-size: 20px;
+  height: var(--item-height);
+  line-height: var(--item-height);
+  padding: 0 12px;
+  color: var(--ios-primary);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.adm-picker-view-mask {
+  background-image: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.95),
+    rgba(255, 255, 255, 0.6)
+  ),
+  linear-gradient(
+    to top,
+    rgba(255, 255, 255, 0.95),
+    rgba(255, 255, 255, 0.6)
+  );
+}
+
+/* 深色模式適配 */
+@media (prefers-color-scheme: dark) {
+  .picker-title {
+    color: #fff;
+  }
+  
+  .adm-picker-view-mask {
+    background-image: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.95),
+      rgba(0, 0, 0, 0.6)
+    ),
+    linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.95),
+      rgba(0, 0, 0, 0.6)
+    );
+  }
+}
+
+/* 充電店家選擇器樣式 */
+.vendor-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.add-vendor {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.add-vendor .adm-input {
+  flex: 1;
+}
+
+.adm-selector {
+  --border-radius: 8px;
+  --padding: 8px;
+  --gap: 12px;
+  --color: var(--ios-primary);
+  --checked-color: #fff;
+  --checked-background-color: var(--ios-primary);
+  --border: 1px solid var(--ios-gray);
+}
+
+.adm-selector-item {
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+/* 深色模式適配 */
+@media (prefers-color-scheme: dark) {
+  .adm-selector {
+    --border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* 充電規格選擇器樣式 */
+.spec-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.spec-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.spec-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ios-gray);
+  padding: 0 4px;
+}
+
+/* 修改選擇器的樣式 */
+.spec-group .adm-selector {
+  --border-radius: 8px;
+  --padding: 8px;
+  --gap: 8px;
+  --color: var(--ios-primary);
+  --checked-color: #fff;
+  --checked-background-color: var(--ios-primary);
+  --border: 1px solid var(--ios-gray);
+}
+
+.spec-group .adm-selector-item {
+  padding: 8px;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* 深色模式適配 */
+@media (prefers-color-scheme: dark) {
+  .spec-title {
+    color: rgba(255, 255, 255, 0.6);
+  }
+  
+  .spec-group .adm-selector {
+    --border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* 下拉選單樣式 */
+.vendor-input,
+.spec-dropdown {
+  width: 100%;
+}
+
+.vendor-dropdown,
+.spec-dropdown {
+  padding: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.vendor-option,
+.spec-option {
+  padding: 12px;
+  margin: 4px 0;
+  border-radius: 8px;
+  background: var(--ios-card-background);
+  transition: all 0.2s ease;
+}
+
+.vendor-option:active,
+.spec-option:active {
+  background: var(--ios-primary);
+  color: white;
+}
+
+.add-vendor {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  margin-top: 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.add-vendor .adm-input {
+  flex: 1;
+}
+
+.adm-dropdown-item {
+  --z-index: 1000;
+}
+
+.adm-dropdown-item-title {
+  padding: 12px;
+  font-size: 16px;
+  background: var(--ios-card-background);
+  border: 1px solid var(--ios-gray);
+  border-radius: 8px;
+}
+
+/* 深色模式適配 */
+@media (prefers-color-scheme: dark) {
+  .vendor-option,
+  .spec-option {
+    background: var(--ios-card-background);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .add-vendor {
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .adm-dropdown-item-title {
+    background: var(--ios-card-background);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* 單位選擇器樣式 */
+.unit-dropdown {
+  padding: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.unit-option {
+  padding: 12px;
+  margin: 4px 0;
+  border-radius: 8px;
+  background: var(--ios-card-background);
+  transition: all 0.2s ease;
+}
+
+.unit-option:active {
+  background: var(--ios-primary);
+  color: white;
+}
+
+/* 深色模式適配 */
+@media (prefers-color-scheme: dark) {
+  .unit-option {
+    background: var(--ios-card-background);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
