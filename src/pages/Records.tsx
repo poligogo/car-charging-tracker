@@ -24,6 +24,9 @@ const Records: React.FC = () => {
   const [lastMileage, setLastMileage] = useState(0);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [customVendor, setCustomVendor] = useState('');
+  const [vendorVisible, setVendorVisible] = useState(false);
+  const [specVisible, setSpecVisible] = useState(false);
+  const [unitVisible, setUnitVisible] = useState(false);
   
   const defaultVendors = [
     'TESLA',
@@ -208,11 +211,13 @@ const Records: React.FC = () => {
         >
           <Form.Header>基本資訊</Form.Header>
           <Form.Item name="date" label="充電日期" rules={[{ required: true }]}>
-            <Input
-              readOnly
-              placeholder="請選擇���期"
-              onClick={() => setShowDatePicker(true)}
-            />
+            <div className="date-input" onClick={() => setShowDatePicker(true)}>
+              <Input
+                readOnly
+                placeholder="請選擇充電日期"
+                value={form.getFieldValue('date')}
+              />
+            </div>
           </Form.Item>
 
           <Popup
@@ -240,7 +245,12 @@ const Records: React.FC = () => {
           </Popup>
 
           <Form.Item name="currentMileage" label="當前里程" rules={[{ required: true }]}>
-            <Input type="number" placeholder="請輸入當前里程" />
+            <Input 
+              type="number" 
+              placeholder="請輸入當前里程" 
+              inputMode="decimal"
+              pattern="[0-9]*"
+            />
           </Form.Item>
 
           <Form.Header>時間資訊</Form.Header>
@@ -267,12 +277,16 @@ const Records: React.FC = () => {
 
           <Form.Header>充電站資訊</Form.Header>
           <Form.Item name="vendor" label="充電店家" rules={[{ required: true }]}>
-            <div className="vendor-input">
-              <Dropdown>
-                <Dropdown.Item
-                  key="vendor"
-                  title={form.getFieldValue('vendor') || '請選擇充電店家'}
-                >
+            <div className="custom-dropdown">
+              <div 
+                className="dropdown-title"
+                onClick={() => setVendorVisible(!vendorVisible)}
+              >
+                {form.getFieldValue('vendor') || '請選擇充電店家'}
+              </div>
+              {vendorVisible && (
+                <>
+                  <div className="dropdown-mask" onClick={() => setVendorVisible(false)} />
                   <div className="vendor-dropdown">
                     {getAvailableVendors().map(vendor => (
                       <div
@@ -280,6 +294,7 @@ const Records: React.FC = () => {
                         className="vendor-option"
                         onClick={() => {
                           form.setFieldsValue({ vendor });
+                          setVendorVisible(false);
                         }}
                       >
                         {vendor}
@@ -290,19 +305,23 @@ const Records: React.FC = () => {
                         placeholder="新增店家"
                         value={customVendor}
                         onChange={val => setCustomVendor(val)}
+                        onClick={e => e.stopPropagation()}
                       />
                       <Button
                         size='small'
                         color='primary'
                         disabled={!customVendor.trim()}
-                        onClick={() => handleAddVendor(customVendor.trim())}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddVendor(customVendor.trim());
+                        }}
                       >
                         新增
                       </Button>
                     </div>
                   </div>
-                </Dropdown.Item>
-              </Dropdown>
+                </>
+              )}
             </div>
           </Form.Item>
 
@@ -311,69 +330,99 @@ const Records: React.FC = () => {
           </Form.Item>
 
           <Form.Item name="specification" label="充電規格" rules={[{ required: true }]}>
-            <Dropdown>
-              <Dropdown.Item
-                key="spec"
-                title={
-                  CHARGING_SPECS.find(spec => spec.value === form.getFieldValue('specification'))?.label ||
-                  '請選擇充電規格'
-                }
+            <div className="custom-dropdown">
+              <div 
+                className="dropdown-title"
+                onClick={() => setSpecVisible(!specVisible)}
               >
-                <div className="spec-dropdown">
-                  {CHARGING_SPECS.map(spec => (
-                    <div
-                      key={spec.value}
-                      className="spec-option"
-                      onClick={() => {
-                        form.setFieldsValue({ specification: spec.value });
-                      }}
-                    >
-                      {spec.label}
-                    </div>
-                  ))}
-                </div>
-              </Dropdown.Item>
-            </Dropdown>
+                {CHARGING_SPECS.find(spec => spec.value === form.getFieldValue('specification'))?.label || 
+                 '請選擇充電規格'}
+              </div>
+              {specVisible && (
+                <>
+                  <div className="dropdown-mask" onClick={() => setSpecVisible(false)} />
+                  <div className="spec-dropdown">
+                    {CHARGING_SPECS.map(spec => (
+                      <div
+                        key={spec.value}
+                        className="spec-option"
+                        onClick={() => {
+                          form.setFieldsValue({ specification: spec.value });
+                          setSpecVisible(false);
+                        }}
+                      >
+                        {spec.label}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
           </Form.Item>
 
           <Form.Header>充電資訊</Form.Header>
           <Form.Item name="power" label="充電電量" rules={[{ required: true }]}>
-            <Input type="number" placeholder="請輸入充電電量" onChange={() => calculateChargingFee()} />
+            <Input 
+              type="number" 
+              placeholder="請輸入充電電量" 
+              onChange={() => calculateChargingFee()} 
+              inputMode="decimal"
+              pattern="[0-9]*"
+            />
           </Form.Item>
 
           <Form.Item name="unit" label="充電單位" rules={[{ required: true }]}>
-            <Dropdown>
-              <Dropdown.Item
-                key="unit"
-                title={form.getFieldValue('unit') || '請選擇單位'}
+            <div className="custom-dropdown">
+              <div 
+                className="dropdown-title"
+                onClick={() => setUnitVisible(!unitVisible)}
               >
-                <div className="unit-dropdown">
-                  {[
-                    { label: '度', value: '度' },
-                    { label: 'kWh', value: 'kWh' }
-                  ].map(unit => (
-                    <div
-                      key={unit.value}
-                      className="unit-option"
-                      onClick={() => {
-                        form.setFieldsValue({ unit: unit.value });
-                      }}
-                    >
-                      {unit.label}
-                    </div>
-                  ))}
-                </div>
-              </Dropdown.Item>
-            </Dropdown>
+                {form.getFieldValue('unit') || '請選擇單位'}
+              </div>
+              {unitVisible && (
+                <>
+                  <div className="dropdown-mask" onClick={() => setUnitVisible(false)} />
+                  <div className="unit-dropdown">
+                    {[
+                      { label: '度', value: '度' },
+                      { label: 'kWh', value: 'kWh' }
+                    ].map(unit => (
+                      <div
+                        key={unit.value}
+                        className="unit-option"
+                        onClick={() => {
+                          form.setFieldsValue({ unit: unit.value });
+                          setUnitVisible(false);
+                        }}
+                      >
+                        {unit.label}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
           </Form.Item>
 
           <Form.Header>費率資訊</Form.Header>
           <Form.Item name="pricePerUnit" label="每度電價">
-            <Input type="number" placeholder="請輸入每度電價" onChange={() => calculateChargingFee()} />
+            <Input 
+              type="number" 
+              placeholder="請輸入每度電價" 
+              onChange={() => calculateChargingFee()} 
+              inputMode="decimal"
+              pattern="[0-9]*"
+            />
           </Form.Item>
 
           <Form.Item name="pricePerMinute" label="每分鐘價格">
-            <Input type="number" placeholder="請輸入每分鐘價格" onChange={() => calculateChargingFee()} />
+            <Input 
+              type="number" 
+              placeholder="請輸入每分鐘價格" 
+              onChange={() => calculateChargingFee()} 
+              inputMode="decimal"
+              pattern="[0-9]*"
+            />
           </Form.Item>
 
           <Form.Header>費用資訊</Form.Header>
@@ -382,7 +431,12 @@ const Records: React.FC = () => {
           </Form.Item>
 
           <Form.Item name="parkingFee" label="停車費">
-            <Input type="number" placeholder="請輸入停車費" />
+            <Input 
+              type="number" 
+              placeholder="請輸入停車費" 
+              inputMode="decimal"
+              pattern="[0-9]*"
+            />
           </Form.Item>
 
           <Form.Header>其他資訊</Form.Header>

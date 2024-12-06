@@ -1,14 +1,18 @@
 :root {
-  --ios-background: #f2f2f7;
-  --ios-card-background: #ffffff;
-  --ios-primary: #007aff;
-  --ios-secondary: #5856d6;
-  --ios-success: #34c759;
-  --ios-warning: #ff9500;
-  --ios-danger: #ff3b30;
-  --ios-gray: #8e8e93;
-  --ios-border-radius: 10px;
-  --ios-blur: blur(20px);
+  --ev-primary: #34c759;
+  --ev-secondary: #00b4d8;
+  --ev-accent: #2dd4bf;
+  --ev-background: #f8fafc;
+  --ev-card: #ffffff;
+  --ev-input-bg: #f1f5f9;
+  --ev-text: #1e293b;
+  --ev-text-secondary: #64748b;
+  --ev-text-light: #94a3b8;
+  --ev-success: #34c759;
+  --ev-warning: #fbbf24;
+  --ev-error: #ef4444;
+  --ev-border: #e2e8f0;
+  --ev-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 body {
@@ -17,36 +21,36 @@ body {
   min-height: 100vh;
   width: 100vw;
   overflow-x: hidden;
-  background-color: var(--ios-background);
+  background-color: var(--ev-background);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
+  color: var(--ev-text);
 }
 
 .adm-tab-bar {
   position: fixed;
   bottom: 0;
   width: 100%;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: var(--ios-blur);
-  border-top: 0.5px solid rgba(0, 0, 0, 0.1);
+  background: var(--ev-card);
+  border-top: 1px solid var(--ev-border);
   padding-bottom: env(safe-area-inset-bottom);
 }
 
 .adm-tab-bar-item {
-  color: var(--ios-gray);
+  color: var(--ev-text-secondary);
   font-size: 10px;
   padding: 4px 0;
 }
 
 .adm-tab-bar-item-active {
-  color: var(--ios-primary);
+  color: var(--ev-primary);
 }
 
 .tesla-home {
   min-height: 100vh;
   height: 100vh;
   width: 100vw;
-  background-color: #000;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   color: #fff;
   padding: 0;
   display: flex;
@@ -86,7 +90,7 @@ body {
 
 .stats-container {
   background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: var(--ios-blur);
+  backdrop-filter: blur(12px);
   border-radius: 24px 24px 0 0;
   padding: 24px;
   width: 100%;
@@ -102,10 +106,11 @@ body {
 .stats-item {
   text-align: center;
   padding: 20px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(52, 199, 89, 0.1);
   border-radius: 16px;
   transition: all 0.3s ease;
   backdrop-filter: var(--ios-blur);
+  border: 1px solid rgba(52, 199, 89, 0.2);
 }
 
 .stats-value {
@@ -122,10 +127,11 @@ body {
 }
 
 .adm-list {
-  background: var(--ios-card-background);
+  background: var(--ev-card);
   border-radius: var(--ios-border-radius);
   margin: 12px;
   overflow: hidden;
+  box-shadow: var(--ev-shadow);
 }
 
 .adm-list-header {
@@ -133,7 +139,7 @@ body {
   font-weight: 600;
   padding: 16px;
   margin: 0;
-  color: #000;
+  color: var(--ev-text);
 }
 
 .adm-list-item {
@@ -153,32 +159,48 @@ body {
 }
 
 .adm-button-primary {
-  background: var(--ios-primary);
+  background: var(--ev-primary);
   color: white;
 }
 
 .adm-button-default {
-  background: rgba(0, 0, 0, 0.05);
-  color: var(--ios-primary);
+  background: var(--ev-input-bg);
+  color: var(--ev-text);
 }
 
 .adm-form {
-  background: var(--ios-card-background);
+  background: var(--ev-card);
   border-radius: var(--ios-border-radius);
   padding: 16px;
   margin: 12px;
+  box-shadow: var(--ev-shadow);
 }
 
 .adm-form-item-label {
   font-weight: 500;
-  color: var(--ios-gray);
+  color: var(--ev-text-secondary);
 }
 
 .adm-input {
-  border-radius: 8px;
-  background: rgba(0, 0, 0, 0.05);
-  padding: 12px;
+  width: 100%;
+  height: 44px;
+  padding: 0 12px;
   font-size: 16px;
+  border: 1px solid var(--ev-border);
+  border-radius: 8px;
+  background: #ffffff;
+  color: #1e293b;
+  transition: all 0.2s ease;
+}
+
+.adm-input:focus {
+  border-color: var(--ev-primary);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(52, 199, 89, 0.2);
+}
+
+.adm-input::placeholder {
+  color: #94a3b8;
 }
 
 .adm-popup {
@@ -198,7 +220,7 @@ body {
   padding: 16px;
   padding-top: calc(16px + env(safe-area-inset-top));
   padding-bottom: calc(50px + env(safe-area-inset-bottom));
-  background: var(--ios-background);
+  background: var(--ev-background);
 }
 
 h1 {
@@ -206,13 +228,19 @@ h1 {
   font-weight: 700;
   margin: 0 0 24px 0;
   letter-spacing: -0.5px;
-  color: #000;
+  color: var(--ev-text);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --ios-background: #000000;
-    --ios-card-background: #1c1c1e;
+    --ev-background: #0f172a;
+    --ev-card: #1e293b;
+    --ev-input-bg: #334155;
+    --ev-text: #f1f5f9;
+    --ev-text-secondary: #cbd5e1;
+    --ev-text-light: #94a3b8;
+    --ev-border: #334155;
+    --ev-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   }
 
   h1 {
@@ -224,12 +252,28 @@ h1 {
   }
 
   .adm-button-default {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--ev-input-bg);
+    color: var(--ev-text);
   }
 
   .adm-input {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
+    background: #334155;
+    color: #f8fafc;
+    border-color: #475569;
+  }
+
+  .adm-input::placeholder {
+    color: #64748b;
+  }
+
+  .adm-input:focus {
+    border-color: var(--ev-primary);
+    box-shadow: 0 0 0 2px rgba(52, 199, 89, 0.3);
+  }
+
+  .adm-input[readonly] {
+    background: #1e293b;
+    color: #e2e8f0;
   }
 }
 
@@ -425,13 +469,15 @@ h1 {
   padding: 12px;
   margin: 4px 0;
   border-radius: 8px;
-  background: var(--ios-card-background);
+  background: #ffffff;
+  color: #1e293b;
+  cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .vendor-option:active,
 .spec-option:active {
-  background: var(--ios-primary);
+  background: var(--ev-primary);
   color: white;
 }
 
@@ -454,17 +500,18 @@ h1 {
 .adm-dropdown-item-title {
   padding: 12px;
   font-size: 16px;
-  background: var(--ios-card-background);
-  border: 1px solid var(--ios-gray);
+  background: var(--ev-card);
+  border: 1px solid var(--ev-border);
   border-radius: 8px;
+  color: var(--ev-text);
 }
 
 /* 深色模式適配 */
 @media (prefers-color-scheme: dark) {
   .vendor-option,
   .spec-option {
-    background: var(--ios-card-background);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #334155;
+    color: #f8fafc;
   }
 
   .add-vendor {
@@ -472,8 +519,8 @@ h1 {
   }
 
   .adm-dropdown-item-title {
-    background: var(--ios-card-background);
-    border-color: rgba(255, 255, 255, 0.2);
+    background: #334155;
+    border-color: #475569;
   }
 }
 
@@ -488,19 +535,216 @@ h1 {
   padding: 12px;
   margin: 4px 0;
   border-radius: 8px;
-  background: var(--ios-card-background);
+  background: var(--ev-card);
   transition: all 0.2s ease;
+  border: 1px solid var(--ev-border);
+  color: var(--ev-text);
 }
 
 .unit-option:active {
-  background: var(--ios-primary);
+  background: var(--ev-primary);
   color: white;
 }
 
 /* 深色模式適配 */
 @media (prefers-color-scheme: dark) {
   .unit-option {
-    background: var(--ios-card-background);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--ev-card);
+    border: 1px solid var(--ev-border);
+  }
+}
+
+/* 日期輸入框樣式 */
+.date-input {
+  position: relative;
+  cursor: pointer;
+}
+
+.date-input .adm-input {
+  pointer-events: none;  /* 防止輸入框本身的點擊事件 */
+}
+
+/* 確保整個區域都可以點擊 */
+.adm-form-item {
+  cursor: pointer;
+}
+
+/* 改進輸入框的視覺效果 */
+.adm-input[readonly] {
+  background: var(--ev-input-bg);
+  color: var(--ev-text);
+}
+
+/* 深色模式適配 */
+@media (prefers-color-scheme: dark) {
+  .adm-input[readonly] {
+    background: var(--ev-input-bg);
+    color: var(--ev-text);
+  }
+}
+
+/* 下拉選單樣式 */
+.adm-dropdown {
+  position: relative;
+}
+
+.adm-dropdown-item {
+  width: 100%;
+}
+
+.adm-dropdown-item-title {
+  width: 100%;
+  padding: 12px;
+  background: var(--ev-input-bg);
+  border: 1px solid var(--ev-border);
+  border-radius: 8px;
+  color: var(--ev-text);
+  text-align: left;
+}
+
+.vendor-dropdown,
+.spec-dropdown,
+.unit-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: var(--ev-card);
+  border: 1px solid var(--ev-border);
+  border-radius: 8px;
+  margin-top: 4px;
+  box-shadow: var(--ev-shadow);
+  z-index: 1000;
+}
+
+.vendor-option,
+.spec-option,
+.unit-option {
+  padding: 12px;
+  cursor: pointer;
+}
+
+.vendor-option:active,
+.spec-option:active,
+.unit-option:active {
+  background: var(--ev-primary);
+  color: white;
+}
+
+/* 下拉選單樣式 */
+.custom-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.dropdown-title {
+  width: 100%;
+  padding: 12px;
+  background: #ffffff;
+  border: 1px solid var(--ev-border);
+  border-radius: 8px;
+  color: #1e293b;
+  cursor: pointer;
+  user-select: none;
+}
+
+.vendor-dropdown,
+.spec-dropdown,
+.unit-dropdown {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  width: auto;
+  background: var(--ev-card);
+  border: 1px solid var(--ev-border);
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow: var(--ev-shadow);
+  z-index: 1200;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.vendor-dropdown {
+  top: 30%;
+}
+
+.spec-dropdown {
+  top: 40%;
+}
+
+.unit-dropdown {
+  top: 50%;
+}
+
+.vendor-option,
+.spec-option,
+.unit-option {
+  padding: 12px;
+  margin: 4px 0;
+  border-radius: 8px;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.vendor-option:active,
+.spec-option:active,
+.unit-option:active {
+  background: var(--ev-primary);
+  color: white;
+}
+
+/* 遮罩層 */
+.dropdown-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1100;
+}
+
+/* 數字輸入框樣式 */
+input[type="number"] {
+  -moz-appearance: textfield;  /* Firefox */
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* 修改輸入框樣式 */
+.adm-input {
+  width: 100%;
+  height: 44px;
+  padding: 0 12px;
+  font-size: 16px;
+  border: 1px solid var(--ev-border);
+  border-radius: 8px;
+  background: #ffffff;  /* 淺色背景 */
+  color: #1e293b;      /* 深色文字 */
+  transition: all 0.2s ease;
+}
+
+/* 深色模式下的輸入框樣式 */
+@media (prefers-color-scheme: dark) {
+  .adm-input {
+    background: #1e293b;  /* 深色背景 */
+    color: #ffffff;      /* 白色文字 */
+    border-color: #475569;
+  }
+
+  /* 下拉選單和唯讀輸入框保持原樣 */
+  .dropdown-title,
+  .adm-input[readonly],
+  .vendor-option,
+  .spec-option,
+  .unit-option {
+    background: #334155;
+    color: #f8fafc;
   }
 }
