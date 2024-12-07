@@ -457,7 +457,7 @@ input[inputmode="decimal"] {
   font-weight: 500;
 }
 
-/* 統計頁面圖表�式 */
+/* 統計頁面圖表式 */
 .chart-container {
   height: 400px;
   width: 100%;
@@ -482,4 +482,50 @@ input[inputmode="decimal"] {
 
 .statistics-page .adm-tabs-tab-active {
   font-weight: 600;
+}
+
+/* 維修項目樣式 */
+.maintenance-items {
+  margin: 16px 0;
+}
+
+.items-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.item-card {
+  margin-bottom: 12px;
+  background: var(--ios-card);
+  border: 1px solid var(--ios-border);
+  border-radius: var(--ios-border-radius);
+}
+
+.item-form {
+  padding: 12px;
+}
+
+.item-numbers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.item-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--ios-border);
+}
+
+.total-cost {
+  text-align: right;
+  font-weight: bold;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ios-border);
 }

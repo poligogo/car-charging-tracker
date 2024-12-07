@@ -39,12 +39,22 @@ export interface MonthlyStats {
   averagePrice: number;
 }
 
+export interface MaintenanceItem {
+  id: string;
+  name: string;      // 項目名稱
+  quantity: number;  // 數量
+  price: number;     // 單價
+  total: number;     // 小計
+}
+
 export interface MaintenanceRecord {
   id: string;
   date: string;
-  shopName: string;
+  type: string;
   mileage: number;
-  items: string;
-  cost: number;
+  location: string;
+  items: MaintenanceItem[];  // 維修項目列表
+  totalCost: number;         // 總費用
+  nextMaintenance?: number;
   notes?: string;
 } 

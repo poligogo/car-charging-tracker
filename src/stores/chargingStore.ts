@@ -33,6 +33,8 @@ interface ChargingState {
   // 維修記錄相關
   addMaintenanceRecord: (record: MaintenanceRecord) => Promise<void>;
   loadMaintenanceRecords: () => Promise<void>;
+  updateMaintenanceRecord: (id: string, record: Partial<MaintenanceRecord>) => Promise<void>;
+  deleteMaintenanceRecord: (id: string) => Promise<void>;
 }
 
 export const useChargingStore = create<ChargingState>((set, get) => ({
@@ -305,6 +307,32 @@ export const useChargingStore = create<ChargingState>((set, get) => ({
       set({ maintenanceRecords: records });
     } catch (error) {
       console.error('Failed to load maintenance records:', error);
+    }
+  },
+
+  updateMaintenanceRecord: async (id: string, record: Partial<MaintenanceRecord>) => {
+    try {
+      await db.maintenance.update(id, record);
+      set(state => ({
+        maintenanceRecords: state.maintenanceRecords.map(r => 
+          r.id === id ? { ...r, ...record } : r
+        )
+      }));
+    } catch (error) {
+      console.error('Failed to update maintenance record:', error);
+      throw error;
+    }
+  },
+
+  deleteMaintenanceRecord: async (id: string) => {
+    try {
+      await db.maintenance.delete(id);
+      set(state => ({
+        maintenanceRecords: state.maintenanceRecords.filter(r => r.id !== id)
+      }));
+    } catch (error) {
+      console.error('Failed to delete maintenance record:', error);
+      throw error;
     }
   },
 })); 
