@@ -9,6 +9,7 @@ const Settings: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [form] = Form.useForm();
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
+  const editingVehicleRef = useRef<Vehicle | null>(null);
 
   useEffect(() => {
     loadVehicles();
@@ -133,41 +134,12 @@ const Settings: React.FC = () => {
     });
   };
 
-  const handleEditVehicle = async (values: Partial<Vehicle>) => {
-    if (!editingVehicle) return;
-    
-    try {
-      const imageUrl = values.imageUrl && Array.isArray(values.imageUrl) && values.imageUrl.length > 0
-        ? values.imageUrl[0].url
-        : editingVehicle.imageUrl;
-
-      await updateVehicle(editingVehicle.id, {
-        name: values.name,
-        imageUrl: imageUrl,
-        isDefault: editingVehicle.isDefault,
-      });
-      
-      Toast.show({
-        content: '修改成功',
-        position: 'bottom',
-      });
-
-      await loadVehicles();
-      
-      form.resetFields();
-      setEditingVehicle(null);
-      Dialog.clear();
-    } catch (error) {
-      console.error('Edit vehicle failed:', error);
-      Toast.show({
-        content: '修改失敗',
-        position: 'bottom',
-      });
-    }
-  };
-
   const showEditVehicleDialog = (vehicle: Vehicle) => {
+    console.log('Opening edit dialog for vehicle:', vehicle);
+    
     setEditingVehicle(vehicle);
+    editingVehicleRef.current = vehicle;
+    
     form.setFieldsValue({
       name: vehicle.name,
       imageUrl: vehicle.imageUrl ? [{ url: vehicle.imageUrl }] : []
@@ -180,8 +152,12 @@ const Settings: React.FC = () => {
           form={form}
           layout='horizontal'
           onFinish={handleEditVehicle}
+          initialValues={{
+            name: vehicle.name,
+            imageUrl: vehicle.imageUrl ? [{ url: vehicle.imageUrl }] : []
+          }}
           footer={
-            <Button block type='submit' color='primary' onClick={() => form.submit()}>
+            <Button block type='submit' color='primary'>
               確認
             </Button>
           }
@@ -218,9 +194,71 @@ const Settings: React.FC = () => {
       closeOnMaskClick: true,
       onClose: () => {
         setEditingVehicle(null);
+        editingVehicleRef.current = null;
         form.resetFields();
       },
     });
+  };
+
+  const handleEditVehicle = async (values: Partial<Vehicle>) => {
+    console.log('Starting edit vehicle with values:', values);
+    const currentEditingVehicle = editingVehicleRef.current;
+    console.log('Current editing vehicle:', currentEditingVehicle);
+    
+    if (!currentEditingVehicle) {
+      console.log('No editing vehicle found');
+      return;
+    }
+    
+    try {
+      console.log('Editing vehicle - Original:', currentEditingVehicle);
+      console.log('Editing vehicle - New values:', values);
+
+      if (!values.name) {
+        Toast.show({
+          content: '請輸入車輛名稱',
+          position: 'bottom',
+        });
+        return;
+      }
+
+      const imageUrl = values.imageUrl && Array.isArray(values.imageUrl) && values.imageUrl.length > 0
+        ? values.imageUrl[0].url
+        : currentEditingVehicle.imageUrl;
+
+      console.log('Processed imageUrl:', imageUrl);
+
+      const updatedVehicle: Partial<Vehicle> = {
+        name: values.name,
+        imageUrl: imageUrl,
+        isDefault: currentEditingVehicle.isDefault,
+      };
+
+      console.log('Updating vehicle with:', updatedVehicle);
+
+      await updateVehicle(currentEditingVehicle.id, updatedVehicle);
+      
+      console.log('Update completed');
+
+      Toast.show({
+        content: '修改成功',
+        position: 'bottom',
+      });
+
+      await loadVehicles();
+      console.log('Vehicles reloaded');
+      
+      Dialog.clear();
+      form.resetFields();
+      setEditingVehicle(null);
+      editingVehicleRef.current = null;
+    } catch (error) {
+      console.error('Edit vehicle failed:', error);
+      Toast.show({
+        content: '修改失敗',
+        position: 'bottom',
+      });
+    }
   };
 
   // 匯出 CSV

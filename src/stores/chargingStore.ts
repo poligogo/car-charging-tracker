@@ -95,7 +95,7 @@ export const useChargingStore = create<ChargingState>((set, get) => ({
     try {
       console.log('Adding vehicle:', vehicle);
       
-      // 檢查是否已存在相同名稱的�輛
+      // 檢查是否已存在相同名稱的車
       const existingVehicle = get().vehicles.find(v => v.name === vehicle.name);
       if (existingVehicle) {
         throw new Error('車輛名稱已存在');
@@ -178,11 +178,44 @@ export const useChargingStore = create<ChargingState>((set, get) => ({
     }
   },
 
-  updateVehicle: async (id, vehicle) => {
-    await db.vehicles.update(id, vehicle);
-    const vehicles = await db.vehicles.toArray();
-    const currentVehicle = vehicles.find(v => v.isDefault) || null;
-    set({ vehicles, currentVehicle });
+  updateVehicle: async (id: string, vehicle: Partial<Vehicle>) => {
+    try {
+      console.log('Store - Updating vehicle:', { id, vehicle });
+
+      // 先檢查車輛是否存在
+      const existingVehicle = await db.vehicles.get(id);
+      console.log('Store - Existing vehicle:', existingVehicle);
+
+      if (!existingVehicle) {
+        throw new Error('Vehicle not found');
+      }
+
+      // 更新數據庫
+      await db.vehicles.update(id, vehicle);
+      console.log('Store - Database updated');
+      
+      // 獲取更新後的車輛列表
+      const vehicles = await db.vehicles.toArray();
+      console.log('Store - All vehicles after update:', vehicles);
+      
+      const currentVehicle = vehicles.find(v => v.isDefault) || null;
+      console.log('Store - Current vehicle after update:', currentVehicle);
+      
+      // 更新 state
+      set({ 
+        vehicles,
+        currentVehicle: currentVehicle
+      });
+      console.log('Store - State updated');
+
+      // 驗證更新
+      const updatedVehicle = vehicles.find(v => v.id === id);
+      console.log('Store - Updated vehicle verification:', updatedVehicle);
+
+    } catch (error) {
+      console.error('Store - Update vehicle failed:', error);
+      throw error;
+    }
   },
 
   addMaintenanceRecord: async (record: MaintenanceRecord) => {
