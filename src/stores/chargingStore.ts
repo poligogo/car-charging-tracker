@@ -48,13 +48,36 @@ export const useChargingStore = create<ChargingState>((set, get) => ({
   },
   maintenanceRecords: [],
 
-  addRecord: async (record) => {
-    const id = await db.records.add(record as ChargingRecord);
-    const newRecord = { ...record, id: id.toString() };
-    set(state => ({
-      records: [...state.records, newRecord]
-    }));
-    await get().calculateMonthlyStats(new Date().toISOString().slice(0, 7));
+  addRecord: async (record: Omit<ChargingRecord, 'id'>) => {
+    try {
+      console.log('Adding record to store:', record);
+      
+      // 確保所有必要欄位都存在
+      if (!record.date || !record.startTime || !record.endTime || !record.power) {
+        throw new Error('Missing required fields');
+      }
+
+      // 添加到數據庫，自動生成 id
+      const newRecord: ChargingRecord = {
+        ...record,
+        id: Date.now().toString()
+      };
+
+      const id = await db.records.add(newRecord);
+      
+      // 更新 state
+      set(state => ({
+        records: [...state.records, newRecord]
+      }));
+
+      // 更新月度統計
+      await get().calculateMonthlyStats(record.date.slice(0, 7));
+
+      console.log('Record added successfully:', newRecord);
+    } catch (error) {
+      console.error('Failed to add record:', error);
+      throw error;
+    }
   },
 
   updateRecord: async (id, record) => {
@@ -66,16 +89,37 @@ export const useChargingStore = create<ChargingState>((set, get) => ({
     }));
   },
 
-  deleteRecord: async (id) => {
-    await db.records.delete(id);
-    set(state => ({
-      records: state.records.filter(r => r.id !== id)
-    }));
+  deleteRecord: async (id: string) => {
+    try {
+      await db.records.delete(id);
+      
+      // 更新 state
+      set(state => ({
+        records: state.records.filter(r => r.id !== id)
+      }));
+
+      // 重新計算當月統計
+      const currentMonth = new Date().toISOString().slice(0, 7);
+      await get().calculateMonthlyStats(currentMonth);
+
+    } catch (error) {
+      console.error('Delete record failed:', error);
+      throw error;
+    }
   },
 
   loadRecords: async () => {
-    const records = await db.records.toArray();
-    set({ records });
+    try {
+      const records = await db.records.toArray();
+      set({ records });
+
+      // 加載記錄後立即更新當月統計
+      const currentMonth = new Date().toISOString().slice(0, 7);
+      await get().calculateMonthlyStats(currentMonth);
+    } catch (error) {
+      console.error('Failed to load records:', error);
+      throw error;
+    }
   },
 
   addStation: async (station) => {
@@ -146,22 +190,48 @@ export const useChargingStore = create<ChargingState>((set, get) => ({
     set({ vehicles, currentVehicle });
   },
 
-  calculateMonthlyStats: async (month) => {
-    const records = await db.records
-      .where('date')
-      .startsWith(month)
-      .toArray();
+  calculateMonthlyStats: async (month: string) => {
+    try {
+      console.log('Calculating stats for month:', month);
+      
+      const records = await db.records
+        .where('date')
+        .startsWith(month)
+        .toArray();
 
-    const stats: MonthlyStats = {
-      totalCost: records.reduce((sum, r) => sum + r.chargingFee + r.parkingFee, 0),
-      totalPower: records.reduce((sum, r) => sum + r.power, 0),
-      chargingCount: records.length,
-      averagePrice: 0
-    };
+      console.log('Found records:', records);
 
-    stats.averagePrice = stats.totalPower ? stats.totalCost / stats.totalPower : 0;
+      if (records.length === 0) {
+        console.log('No records found, setting stats to 0');
+        set({
+          monthlyStats: {
+            totalCost: 0,
+            totalPower: 0,
+            chargingCount: 0,
+            averagePrice: 0
+          }
+        });
+        return;
+      }
 
-    set({ monthlyStats: stats });
+      const totalCost = records.reduce((sum, r) => sum + (r.chargingFee || 0) + (r.parkingFee || 0), 0);
+      const totalPower = records.reduce((sum, r) => sum + (r.power || 0), 0);
+
+      console.log('Calculated values:', { totalCost, totalPower, count: records.length });
+
+      const stats: MonthlyStats = {
+        totalCost: Math.round(totalCost * 100) / 100,
+        totalPower: totalPower,
+        chargingCount: records.length,
+        averagePrice: totalPower ? Number((totalCost / totalPower).toFixed(3)) : 0
+      };
+
+      console.log('Setting new stats:', stats);
+      set({ monthlyStats: stats });
+    } catch (error) {
+      console.error('Calculate monthly stats failed:', error);
+      throw error;
+    }
   },
 
   deleteVehicle: async (id: string) => {

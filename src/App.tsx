@@ -3,9 +3,23 @@ import { TabBar } from 'antd-mobile';
 import { AppOutline, UnorderedListOutline, SetOutline, SetOutline as ToolOutline } from 'antd-mobile-icons';
 import { Home, Records, Statistics, Settings, Maintenance } from './pages';
 import ErrorBoundary from './components/ErrorBoundary';
+import { useEffect } from 'react';
+import { useChargingStore } from './stores/chargingStore';
 
 const TabBarWrapper = () => {
   const navigate = useNavigate();
+  const { loadRecords, calculateMonthlyStats } = useChargingStore();
+  
+  useEffect(() => {
+    const initializeData = async () => {
+      await loadRecords();
+      // 確保在加載記錄後更新當月統計
+      const currentMonth = new Date().toISOString().slice(0, 7);
+      await calculateMonthlyStats(currentMonth);
+    };
+
+    initializeData();
+  }, [loadRecords, calculateMonthlyStats]);
   
   return (
     <TabBar onChange={value => navigate(value)}>
