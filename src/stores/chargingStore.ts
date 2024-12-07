@@ -10,6 +10,12 @@ interface ChargingState {
   currentVehicle: Vehicle | null;
   monthlyStats: MonthlyStats;
   maintenanceRecords: MaintenanceRecord[];
+  totalStats: {
+    totalCost: number;
+    totalPower: number;
+    chargingCount: number;
+    averagePrice: number;
+  };
   
   // 記錄相關
   addRecord: (record: Omit<ChargingRecord, 'id'>) => Promise<void>;
@@ -50,6 +56,12 @@ export const useChargingStore = create<ChargingState>((set, get) => ({
     averagePrice: 0
   },
   maintenanceRecords: [],
+  totalStats: {
+    totalCost: 0,
+    totalPower: 0,
+    chargingCount: 0,
+    averagePrice: 0
+  },
 
   addRecord: async (record: Omit<ChargingRecord, 'id'>) => {
     try {
@@ -116,6 +128,17 @@ export const useChargingStore = create<ChargingState>((set, get) => ({
       const records = await db.records.toArray();
       console.log('Loaded records:', records.length);
       set({ records });
+
+      // �算總計統計
+      const totalCost = records.reduce((sum, r) => sum + (r.chargingFee || 0) + (r.parkingFee || 0), 0);
+      const totalPower = records.reduce((sum, r) => sum + (r.power || 0), 0);
+      const totalStats = {
+        totalCost: Math.round(totalCost * 100) / 100,
+        totalPower: totalPower,
+        chargingCount: records.length,
+        averagePrice: totalPower ? Number((totalCost / totalPower).toFixed(3)) : 0
+      };
+      set({ totalStats });
 
       // 使用最新記錄的月份
       const sortedRecords = [...records].sort((a, b) => 

@@ -1,9 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useChargingStore } from '../stores/chargingStore';
+import { Collapse } from 'antd-mobile';
+import { RightOutline } from 'antd-mobile-icons';
 import dayjs from 'dayjs';
 
 const Home: React.FC = () => {
-  const { currentVehicle, monthlyStats, calculateMonthlyStats, records } = useChargingStore();
+  const { currentVehicle, monthlyStats, totalStats, calculateMonthlyStats, records } = useChargingStore();
+  const [activeKey, setActiveKey] = useState<string[]>([]);
 
   const calculateDaysWithCar = (purchaseDate?: string) => {
     if (!purchaseDate) return null;
@@ -68,24 +71,53 @@ const Home: React.FC = () => {
       </div>
 
       <div className="stats-container">
-        <div className="stats-grid">
-          <div className="stats-item">
-            <div className="stats-value">${monthlyStats.totalCost.toFixed(2)}</div>
-            <div className="stats-label">本月花費</div>
-          </div>
-          <div className="stats-item">
-            <div className="stats-value">{monthlyStats.totalPower.toFixed(2)} kWh</div>
-            <div className="stats-label">本月充電量</div>
-          </div>
-          <div className="stats-item">
-            <div className="stats-value">{monthlyStats.chargingCount}</div>
-            <div className="stats-label">本月充電次數</div>
-          </div>
-          <div className="stats-item">
-            <div className="stats-value">${monthlyStats.averagePrice.toFixed(3)}/kWh</div>
-            <div className="stats-label">平均單價</div>
-          </div>
-        </div>
+        <Collapse
+          activeKey={activeKey}
+          onChange={key => setActiveKey(key as string[])}
+          className="stats-collapse"
+        >
+          <Collapse.Panel key="monthly" title="本月統計" arrow={<RightOutline />}>
+            <div className="stats-grid">
+              <div className="stats-item">
+                <div className="stats-value">${monthlyStats.totalCost.toFixed(2)}</div>
+                <div className="stats-label">本月花費</div>
+              </div>
+              <div className="stats-item">
+                <div className="stats-value">{monthlyStats.totalPower.toFixed(2)} kWh</div>
+                <div className="stats-label">本月充電量</div>
+              </div>
+              <div className="stats-item">
+                <div className="stats-value">{monthlyStats.chargingCount}</div>
+                <div className="stats-label">本月充電次數</div>
+              </div>
+              <div className="stats-item">
+                <div className="stats-value">${monthlyStats.averagePrice.toFixed(3)}/kWh</div>
+                <div className="stats-label">平均單價</div>
+              </div>
+            </div>
+          </Collapse.Panel>
+
+          <Collapse.Panel key="total" title="總計統計" arrow={<RightOutline />}>
+            <div className="stats-grid">
+              <div className="stats-item">
+                <div className="stats-value">${totalStats.totalCost.toFixed(2)}</div>
+                <div className="stats-label">總花費</div>
+              </div>
+              <div className="stats-item">
+                <div className="stats-value">{totalStats.totalPower.toFixed(2)} kWh</div>
+                <div className="stats-label">總充電量</div>
+              </div>
+              <div className="stats-item">
+                <div className="stats-value">{totalStats.chargingCount}</div>
+                <div className="stats-label">總充電次數</div>
+              </div>
+              <div className="stats-item">
+                <div className="stats-value">${totalStats.averagePrice.toFixed(3)}/kWh</div>
+                <div className="stats-label">總平均單價</div>
+              </div>
+            </div>
+          </Collapse.Panel>
+        </Collapse>
       </div>
     </div>
   );

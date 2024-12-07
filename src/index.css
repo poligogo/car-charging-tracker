@@ -239,69 +239,79 @@ h1 {
 }
 
 .stats-container {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(20px);
   border-radius: 24px 24px 0 0;
   padding: 20px;
   width: 100%;
   margin-top: auto;
   padding-bottom: calc(env(safe-area-inset-bottom) + 70px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stats-collapse {
+  background: transparent !important;
+}
+
+.stats-collapse .adm-collapse-panel {
+  background: transparent !important;
+  margin-bottom: 12px;
+}
+
+.stats-collapse .adm-collapse-panel-header {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 16px !important;
+  padding: 16px !important;
+  color: #fff !important;
+  backdrop-filter: blur(12px);
+}
+
+.stats-collapse .adm-collapse-panel-header-arrow {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.stats-collapse .adm-collapse-panel-content {
+  background: transparent !important;
+  padding: 16px 0 0 0 !important;
 }
 
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
+  margin-top: 8px;
 }
 
 .stats-item {
-  text-align: center;
-  padding: 16px 12px;
-  background: rgba(52, 199, 89, 0.1);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 16px;
-  transition: all 0.3s ease;
+  padding: 16px;
+  text-align: center;
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(52, 199, 89, 0.2);
+  transition: all 0.3s ease;
 }
 
 .stats-value {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 600;
-  margin-bottom: 4px;
   color: #fff;
+  margin-bottom: 4px;
 }
 
 .stats-label {
-  font-size: 12px;
+  font-size: 14px;
   color: rgba(255, 255, 255, 0.7);
   font-weight: 500;
 }
 
-/* 深色模式下特斯拉首頁保持原樣 */
+/* 深色模式適配 */
 @media (prefers-color-scheme: dark) {
-  .tesla-home {
-    background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
-  }
-  
-  .stats-container {
-    background: rgba(255, 255, 255, 0.1);
-  }
-  
+  .stats-collapse .adm-collapse-panel-header,
   .stats-item {
-    background: rgba(52, 199, 89, 0.1);
-    border: 1px solid rgba(52, 199, 89, 0.2);
-  }
-  
-  .stats-value {
-    color: #fff;
-  }
-  
-  .stats-label {
-    color: rgba(255, 255, 255, 0.7);
-  }
-  
-  .vehicle-name {
-    color: #fff;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
   }
 }
 
@@ -531,4 +541,45 @@ input[inputmode="decimal"] {
   .adm-tab-bar {
     background: rgba(28, 28, 30, 0.8);
   }
+}
+
+.stats-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ios-text);
+  margin: 20px 0 12px;
+  padding: 0 16px;
+}
+
+.stats-container {
+  margin-top: 24px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding: 0 16px;
+  margin-bottom: 24px;
+}
+
+.stats-item {
+  background: rgba(52, 199, 89, 0.1);
+  border: 1px solid rgba(52, 199, 89, 0.2);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  backdrop-filter: blur(8px);
+}
+
+.stats-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--ios-text);
+  margin-bottom: 4px;
+}
+
+.stats-label {
+  font-size: 14px;
+  color: var(--ios-text-secondary);
 }
