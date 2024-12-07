@@ -19,7 +19,7 @@ const Settings: React.FC = () => {
     try {
       if (!values.name) {
         Toast.show({
-          content: '請輸入車名稱',
+          content: '請輸入車輛名稱',
           position: 'bottom',
         });
         return;
@@ -29,14 +29,69 @@ const Settings: React.FC = () => {
         ? values.imageUrl[0].url 
         : null;
 
-      const newVehicle: Omit<Vehicle, 'id'> = {
+      // 如果是第一台車，先詢問是否設為預設車輛
+      if (vehicles.length === 0) {
+        return new Promise((resolve) => {
+          Dialog.confirm({
+            title: '設定預設車量確認',
+            content: '是否要將此車輛設定為預設車輛？',
+            onConfirm: async () => {
+              try {
+                await addVehicle({
+                  name: values.name,
+                  imageUrl: imageUrl,
+                  isDefault: true
+                });
+                Toast.show({
+                  content: '新增車輛成功',
+                  position: 'bottom',
+                });
+                form.resetFields();
+                Dialog.clear();
+                resolve(true);
+              } catch (error) {
+                console.error('Add vehicle failed:', error);
+                Toast.show({
+                  content: '新增車輛失敗',
+                  position: 'bottom',
+                });
+                resolve(false);
+              }
+            },
+            onCancel: async () => {
+              try {
+                await addVehicle({
+                  name: values.name,
+                  imageUrl: imageUrl,
+                  isDefault: false
+                });
+                Toast.show({
+                  content: '新增車輛成功',
+                  position: 'bottom',
+                });
+                form.resetFields();
+                Dialog.clear();
+                resolve(true);
+              } catch (error) {
+                console.error('Add vehicle failed:', error);
+                Toast.show({
+                  content: '新增車輛失敗',
+                  position: 'bottom',
+                });
+                resolve(false);
+              }
+            },
+          });
+        });
+      }
+
+      // 如果不是第一台車，直接新增
+      await addVehicle({
         name: values.name,
         imageUrl: imageUrl,
-        isDefault: vehicles.length === 0,
-      };
+        isDefault: false
+      });
 
-      await addVehicle(newVehicle);
-      
       Toast.show({
         content: '新增車輛成功',
         position: 'bottom',
@@ -54,17 +109,11 @@ const Settings: React.FC = () => {
   };
 
   const handleDeleteVehicle = async (vehicle: Vehicle) => {
-    if (vehicle.isDefault) {
-      Toast.show({
-        content: '無法刪除預設車輛',
-        position: 'bottom',
-      });
-      return;
-    }
-
     Dialog.confirm({
       title: '確認刪除',
-      content: `確定要刪除 ${vehicle.name} 嗎？`,
+      content: vehicle.isDefault 
+        ? `此車輛為預設車輛，刪除後將需要重新設定預設車輛。確定要刪除 ${vehicle.name} 嗎？`
+        : `確定要刪除 ${vehicle.name} 嗎？`,
       onConfirm: async () => {
         try {
           await deleteVehicle(vehicle.id);
