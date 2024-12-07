@@ -23,6 +23,7 @@ export interface Vehicle {
   name: string;
   imageUrl?: string;
   isDefault: boolean;
+  purchaseDate?: string;
 }
 
 export interface ChargingStation {

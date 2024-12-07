@@ -3,6 +3,7 @@ import { List, Button, Dialog, Form, Input, ImageUploader, Toast, SwipeAction } 
 import { useChargingStore } from '../stores/chargingStore';
 import type { Vehicle } from '../types';
 import { db } from '../services/db';
+import dayjs from 'dayjs';
 
 const Settings: React.FC = () => {
   const { vehicles, loadVehicles, addVehicle, setDefaultVehicle, deleteVehicle, updateVehicle, records, maintenanceRecords } = useChargingStore();
@@ -29,7 +30,7 @@ const Settings: React.FC = () => {
         ? values.imageUrl[0].url 
         : null;
 
-      // 如果是���一台車，先詢���是否設為預設車輛
+      // 如果是第一台車，先詢問是否設為預設車輛
       if (vehicles.length === 0) {
         return new Promise((resolve) => {
           Dialog.confirm({
@@ -40,6 +41,7 @@ const Settings: React.FC = () => {
                 await addVehicle({
                   name: values.name,
                   imageUrl: imageUrl,
+                  purchaseDate: values.purchaseDate || dayjs().format('YYYY-MM-DD'),
                   isDefault: true
                 });
                 Toast.show({
@@ -63,6 +65,7 @@ const Settings: React.FC = () => {
                 await addVehicle({
                   name: values.name,
                   imageUrl: imageUrl,
+                  purchaseDate: values.purchaseDate || dayjs().format('YYYY-MM-DD'),
                   isDefault: false
                 });
                 Toast.show({
@@ -89,6 +92,7 @@ const Settings: React.FC = () => {
       await addVehicle({
         name: values.name,
         imageUrl: imageUrl,
+        purchaseDate: values.purchaseDate || dayjs().format('YYYY-MM-DD'),
         isDefault: false
       });
 
@@ -110,7 +114,7 @@ const Settings: React.FC = () => {
 
   const handleDeleteVehicle = async (vehicle: Vehicle) => {
     Dialog.confirm({
-      title: '確認刪除',
+      title: '確認要刪除嗎？',
       content: vehicle.isDefault 
         ? `此車輛為預設車輛，刪除後將需要重新設定預設車輛。確定要刪除 ${vehicle.name} 嗎？`
         : `確定要刪除 ${vehicle.name} 嗎？`,
@@ -150,6 +154,15 @@ const Settings: React.FC = () => {
           <Form.Item name='name' label='車輛名稱' rules={[{ required: true }]}>
             <Input placeholder='請輸入車輛名稱' />
           </Form.Item>
+          
+          <Form.Item name='purchaseDate' label='購買日期' rules={[{ required: true }]}>
+            <Input 
+              type="date" 
+              placeholder="請選擇購買日期"
+              defaultValue={dayjs().format('YYYY-MM-DD')}
+            />
+          </Form.Item>
+
           <Form.Item name='imageUrl' label='車輛照片'>
             <ImageUploader
               maxCount={1}
@@ -191,7 +204,8 @@ const Settings: React.FC = () => {
     
     form.setFieldsValue({
       name: vehicle.name,
-      imageUrl: vehicle.imageUrl ? [{ url: vehicle.imageUrl }] : []
+      imageUrl: vehicle.imageUrl ? [{ url: vehicle.imageUrl }] : [],
+      purchaseDate: vehicle.purchaseDate
     });
     
     Dialog.show({
@@ -203,7 +217,8 @@ const Settings: React.FC = () => {
           onFinish={handleEditVehicle}
           initialValues={{
             name: vehicle.name,
-            imageUrl: vehicle.imageUrl ? [{ url: vehicle.imageUrl }] : []
+            imageUrl: vehicle.imageUrl ? [{ url: vehicle.imageUrl }] : [],
+            purchaseDate: vehicle.purchaseDate
           }}
           footer={
             <Button block type='submit' color='primary'>
@@ -280,6 +295,7 @@ const Settings: React.FC = () => {
       const updatedVehicle: Partial<Vehicle> = {
         name: values.name,
         imageUrl: imageUrl,
+        purchaseDate: values.purchaseDate,
         isDefault: currentEditingVehicle.isDefault,
       };
 

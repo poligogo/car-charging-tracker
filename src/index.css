@@ -161,9 +161,9 @@ h1 {
   left: 0;
   right: 0;
   z-index: 1000;
-  background: var(--ios-card);
-  backdrop-filter: var(--ios-blur);
-  border-top: 0.5px solid var(--ios-border);
+  background: rgba(28, 28, 30, 0.8);
+  backdrop-filter: blur(12px);
+  border-top: 0.5px solid rgba(255, 255, 255, 0.1);
   padding-bottom: env(safe-area-inset-bottom);
 }
 
@@ -181,64 +181,6 @@ h1 {
 
 /* 特斯拉首頁特殊處理 */
 .tesla-home {
-  padding-bottom: calc(64px + env(safe-area-inset-bottom)); /* 增加底部間距 */
-}
-
-.stats-container {
-  margin-bottom: calc(64px + env(safe-area-inset-bottom)); /* 增加底部間距 */
-}
-
-/* 導航欄項目樣式 */
-.adm-tab-bar-item {
-  color: var(--ios-text-secondary);
-  font-size: 10px;
-  padding: 6px 0;
-}
-
-.adm-tab-bar-item-active {
-  color: var(--ios-primary);
-}
-
-/* 確保導航欄在深色模式下的效果 */
-@media (prefers-color-scheme: dark) {
-  .adm-tab-bar {
-    background: rgba(28, 28, 30, 0.8);
-  }
-}
-
-/* 彈出層樣式 */
-.adm-popup {
-  border-radius: 24px 24px 0 0;
-}
-
-.adm-popup-body {
-  background: var(--ios-card);
-  padding: 16px;
-}
-
-/* 日期選擇器樣式 */
-.calendar-container {
-  background: var(--ios-card);
-  border-radius: var(--ios-border-radius);
-}
-
-.calendar-header {
-  padding: 16px;
-  border-bottom: 0.5px solid var(--ios-border);
-}
-
-/* 表單頁面樣式 */
-.records-page,
-.statistics-page,
-.settings-page,
-.maintenance-page {
-  padding: 16px;
-  padding-top: calc(16px + env(safe-area-inset-top));
-  padding-bottom: calc(50px + env(safe-area-inset-bottom));
-}
-
-/* Tesla 首頁特殊樣式 */
-.tesla-home {
   min-height: 100vh;
   height: 100vh;
   width: 100vw;
@@ -250,56 +192,71 @@ h1 {
   position: fixed;
   top: 0;
   left: 0;
+  padding-bottom: calc(50px + env(safe-area-inset-bottom));
 }
 
 .vehicle-display {
-  flex: 0.8;
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 10px;
-  position: relative;
+  justify-content: flex-start;
+  padding: 20px;
   width: 100%;
-  max-height: 50vh;
+  height: 60vh;
+  overflow: hidden;
+}
+
+.vehicle-image-container {
+  width: 100%;
+  height: 35vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
 }
 
 .vehicle-image {
-  width: 90%;
-  height: auto;
+  width: 80%;
+  height: 100%;
   object-fit: contain;
-  margin-bottom: 10px;
+}
+
+.vehicle-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 0 20px;
 }
 
 .vehicle-name {
-  font-size: 34px;
+  font-size: 24px;
   font-weight: 700;
   margin: 0;
   text-align: center;
   color: #fff;
-  letter-spacing: -0.5px;
 }
 
 .stats-container {
-  flex: 1.2;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(20px);
   border-radius: 24px 24px 0 0;
   padding: 20px;
   width: 100%;
-  box-sizing: border-box;
+  margin-top: auto;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 70px);
 }
 
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
-  margin-top: 10px;
 }
 
 .stats-item {
   text-align: center;
-  padding: 15px;
+  padding: 16px 12px;
   background: rgba(52, 199, 89, 0.1);
   border-radius: 16px;
   transition: all 0.3s ease;
@@ -308,14 +265,14 @@ h1 {
 }
 
 .stats-value {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 600;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   color: #fff;
 }
 
 .stats-label {
-  font-size: 13px;
+  font-size: 12px;
   color: rgba(255, 255, 255, 0.7);
   font-weight: 500;
 }
@@ -528,4 +485,45 @@ input[inputmode="decimal"] {
   margin-top: 16px;
   padding-top: 16px;
   border-top: 1px solid var(--ios-border);
+}
+
+.days-with-car {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  text-align: center;
+  font-weight: 500;
+  background: rgba(52, 199, 89, 0.2);
+  padding: 8px 16px;
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(52, 199, 89, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.5s ease-out;
+  margin-top: 10px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 深色模式下的特殊處理 */
+@media (prefers-color-scheme: dark) {
+  .days-with-car {
+    background: rgba(52, 199, 89, 0.15);
+    border-color: rgba(52, 199, 89, 0.25);
+  }
+}
+
+/* 確保導航欄在深色模式下的效果 */
+@media (prefers-color-scheme: dark) {
+  .adm-tab-bar {
+    background: rgba(28, 28, 30, 0.8);
+  }
 }
