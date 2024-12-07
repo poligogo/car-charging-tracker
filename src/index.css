@@ -456,3 +456,30 @@ input[inputmode="decimal"] {
   color: var(--ios-primary);
   font-weight: 500;
 }
+
+/* 統計頁面圖表�式 */
+.chart-container {
+  height: 400px;
+  width: 100%;
+  margin: 16px 0;
+}
+
+.statistics-page .adm-tabs {
+  --active-line-color: var(--ios-primary);
+  --title-active-color: var(--ios-primary);
+}
+
+.statistics-page .adm-tabs-content {
+  padding: 16px;
+  background: var(--ios-card);
+  border-radius: var(--ios-border-radius);
+}
+
+.statistics-page .adm-tabs-tab {
+  font-size: 15px;
+  padding: 12px;
+}
+
+.statistics-page .adm-tabs-tab-active {
+  font-weight: 600;
+}

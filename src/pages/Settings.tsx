@@ -29,7 +29,7 @@ const Settings: React.FC = () => {
         ? values.imageUrl[0].url 
         : null;
 
-      // 如果是第一台車，先詢問是否設為預設車輛
+      // 如果是第一台車，先詢���是否設為預設車輛
       if (vehicles.length === 0) {
         return new Promise((resolve) => {
           Dialog.confirm({
@@ -310,7 +310,27 @@ const Settings: React.FC = () => {
     }
   };
 
-  // 匯出 CSV
+  // 定義欄位映射
+  const CSV_HEADERS = {
+    date: '日期',
+    currentMileage: '當前里程',
+    increasedMileage: '增加里程',
+    startTime: '開始時間',
+    endTime: '結束時間',
+    duration: '充電時長',
+    vendor: '充電店家',
+    stationName: '充電站',
+    specification: '充電規格',
+    power: '充電電量',
+    unit: '單位',
+    pricePerUnit: '每度電價',
+    pricePerMinute: '每分鐘價格',
+    chargingFee: '充電費用',
+    parkingFee: '停車費用',
+    notes: '備註'
+  };
+
+  // 修改 exportCSV 函數
   const exportCSV = () => {
     const headers = [
       'date',
@@ -329,34 +349,27 @@ const Settings: React.FC = () => {
       'chargingFee',
       'parkingFee',
       'notes',
-    ].join(',');
+    ];
+
+    // 使用中文欄位名稱
+    const headerRow = headers.map(key => CSV_HEADERS[key as keyof typeof CSV_HEADERS]).join(',');
 
     const rows = records.map((record) =>
-      [
-        record.date,
-        record.currentMileage,
-        record.increasedMileage,
-        record.startTime,
-        record.endTime,
-        record.duration,
-        record.vendor,
-        record.stationName,
-        record.specification,
-        record.power,
-        record.unit,
-        record.pricePerUnit,
-        record.pricePerMinute,
-        record.chargingFee,
-        record.parkingFee,
-        record.notes,
-      ].join(',')
+      headers.map(key => {
+        const value = record[key as keyof typeof record];
+        // 處理可能包含逗號的字串值
+        if (typeof value === 'string' && value.includes(',')) {
+          return `"${value}"`;
+        }
+        return value;
+      }).join(',')
     );
 
-    const csv = [headers, ...rows].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const csv = [headerRow, ...rows].join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' }); // 添加 BOM 以確保 Excel 正確顯示中文
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `charging_records_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.download = `充電記錄_${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
   };
 
