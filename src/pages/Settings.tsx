@@ -114,7 +114,7 @@ const Settings: React.FC = () => {
 
   const handleDeleteVehicle = async (vehicle: Vehicle) => {
     Dialog.confirm({
-      title: '確認要刪除嗎？',
+      title: '確認��刪除嗎？',
       content: vehicle.isDefault 
         ? `此車輛為預設車輛，刪除後將需要重新設定預設車輛。確定要刪除 ${vehicle.name} 嗎？`
         : `確定要刪除 ${vehicle.name} 嗎？`,
@@ -158,7 +158,7 @@ const Settings: React.FC = () => {
           <Form.Item name='purchaseDate' label='購買日期' rules={[{ required: true }]}>
             <Input 
               type="date" 
-              placeholder="請選擇購買日期"
+              placeholder="���選擇購買日期"
               defaultValue={dayjs().format('YYYY-MM-DD')}
             />
           </Form.Item>
@@ -373,16 +373,23 @@ const Settings: React.FC = () => {
     const rows = records.map((record) =>
       headers.map(key => {
         const value = record[key as keyof typeof record];
+        
+        // 處理時間格式
+        if (key === 'startTime' || key === 'endTime') {
+          return dayjs(value as string).format('HH:mm');
+        }
+        
         // 處理可能包含逗號的字串值
         if (typeof value === 'string' && value.includes(',')) {
           return `"${value}"`;
         }
+        
         return value;
       }).join(',')
     );
 
     const csv = [headerRow, ...rows].join('\n');
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' }); // 添加 BOM 以確保 Excel 正確顯示中文
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = `充電記錄_${new Date().toISOString().slice(0, 10)}.csv`;
