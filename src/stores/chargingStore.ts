@@ -230,6 +230,9 @@ export const useChargingStore = create<ChargingState>((set, get) => ({
 
       console.log('Setting new stats:', stats);
       set({ monthlyStats: stats });
+
+      // 觸發圖表重新渲染
+      window.dispatchEvent(new Event('recordsUpdated'));
     } catch (error) {
       console.error('Calculate monthly stats failed:', error);
       throw error;

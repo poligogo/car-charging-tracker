@@ -3,11 +3,12 @@ import { Tabs } from 'antd-mobile';
 import * as echarts from 'echarts';
 import { useChargingStore } from '../stores/chargingStore';
 import type { ChargingRecord } from '../types';
+import dayjs from 'dayjs';
 
 const Statistics: React.FC = () => {
-  const { records, loadRecords } = useChargingStore();
-  const [currentMonth, setCurrentMonth] = useState(new Date().toISOString().slice(0, 7));
+  const { records, loadRecords, calculateMonthlyStats } = useChargingStore();
   const [activeKey, setActiveKey] = useState('cost');
+  const [currentMonth, setCurrentMonth] = useState(dayjs().format('YYYY-MM'));
   
   // 使用 ref 來保存圖表實例
   const chartRefs = useRef<{[key: string]: echarts.ECharts | null}>({
@@ -17,9 +18,22 @@ const Statistics: React.FC = () => {
     station: null
   });
 
+  // 初始加載數據
   useEffect(() => {
-    loadRecords();
+    const initData = async () => {
+      await loadRecords();
+      await calculateMonthlyStats(currentMonth);
+    };
+    initData();
   }, []);
+
+  // 監聽 records 變化，重新渲染圖表
+  useEffect(() => {
+    if (records.length > 0) {
+      const monthlyRecords = records.filter(r => r.date.startsWith(currentMonth));
+      renderCharts(monthlyRecords);
+    }
+  }, [records, currentMonth, activeKey]);
 
   // 處理視窗大小變化
   useEffect(() => {
@@ -42,27 +56,22 @@ const Statistics: React.FC = () => {
     };
   }, []);
 
-  useEffect(() => {
-    if (records.length > 0) {
-      const monthlyRecords = records.filter(r => r.date.startsWith(currentMonth));
-      
-      // 根據當前激活的 tab 渲染對應的圖表
-      switch (activeKey) {
-        case 'cost':
-          renderCostChart(monthlyRecords);
-          break;
-        case 'power':
-          renderPowerChart(monthlyRecords);
-          break;
-        case 'duration':
-          renderDurationChart(monthlyRecords);
-          break;
-        case 'station':
-          renderStationChart(monthlyRecords);
-          break;
-      }
+  const renderCharts = (monthlyRecords: ChargingRecord[]) => {
+    switch (activeKey) {
+      case 'cost':
+        renderCostChart(monthlyRecords);
+        break;
+      case 'power':
+        renderPowerChart(monthlyRecords);
+        break;
+      case 'duration':
+        renderDurationChart(monthlyRecords);
+        break;
+      case 'station':
+        renderStationChart(monthlyRecords);
+        break;
     }
-  }, [records, currentMonth, activeKey]);
+  };
 
   const initChart = (domId: string, chartKey: string) => {
     const chartDom = document.getElementById(domId);

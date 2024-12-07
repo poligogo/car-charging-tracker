@@ -114,7 +114,7 @@ const Settings: React.FC = () => {
 
   const handleDeleteVehicle = async (vehicle: Vehicle) => {
     Dialog.confirm({
-      title: '確認��刪除嗎？',
+      title: '確認��除嗎？',
       content: vehicle.isDefault 
         ? `此車輛為預設車輛，刪除後將需要重新設定預設車輛。確定要刪除 ${vehicle.name} 嗎？`
         : `確定要刪除 ${vehicle.name} 嗎？`,
@@ -158,7 +158,7 @@ const Settings: React.FC = () => {
           <Form.Item name='purchaseDate' label='購買日期' rules={[{ required: true }]}>
             <Input 
               type="date" 
-              placeholder="���選擇購買日期"
+              placeholder="選���購買日期"
               defaultValue={dayjs().format('YYYY-MM-DD')}
             />
           </Form.Item>
@@ -346,7 +346,86 @@ const Settings: React.FC = () => {
     notes: '備註'
   };
 
-  // 修改 exportCSV 函數
+  // 添加時間格式處理的輔助函數
+  const formatTimeForDB = (timeStr: string) => {
+    // 如果時間格式是 HH:mm，轉換為完整的 ISO 格式
+    if (timeStr.length === 5) { // 格式� "HH:mm"
+      const today = dayjs().format('YYYY-MM-DD');
+      return dayjs(`${today} ${timeStr}`).toISOString();
+    }
+    // 如果已經是 ISO 格式，直接返回
+    return timeStr;
+  };
+
+  const formatTimeForCSV = (isoTime: string) => {
+    return dayjs(isoTime).format('HH:mm');
+  };
+
+  // 修改匯入函數
+  const importCSV = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const text = e.target?.result as string;
+        const [headers, ...rows] = text.split('\n');
+        
+        const records = rows
+          .filter(row => row.trim())
+          .map((row) => {
+            const values = row.split(',');
+            return {
+              id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+              date: values[0],
+              currentMileage: Number(values[1]),
+              increasedMileage: Number(values[2]),
+              startTime: formatTimeForDB(values[3]), // 處理開始時間
+              endTime: formatTimeForDB(values[4]),   // 處理結束時間
+              duration: Number(values[5]),
+              vendor: values[6],
+              stationName: values[7],
+              specification: values[8],
+              power: Number(values[9]),
+              unit: values[10],
+              pricePerUnit: Number(values[11]),
+              pricePerMinute: Number(values[12]),
+              chargingFee: Number(values[13]),
+              parkingFee: Number(values[14]),
+              notes: values[15],
+            };
+          });
+
+        await db.records.bulkAdd(records);
+        const updatedRecords = await db.records.toArray();
+        useChargingStore.setState({ records: updatedRecords });
+        
+        // 更新當月統計
+        const currentMonth = new Date().toISOString().slice(0, 7);
+        await useChargingStore.getState().calculateMonthlyStats(currentMonth);
+
+        Toast.show({
+          content: `成功匯入 ${records.length} 筆紀錄`,
+          position: 'bottom',
+        });
+
+        // 清除文件輸入
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      } catch (error) {
+        console.error('Import failed:', error);
+        Toast.show({
+          content: '匯入失敗，請檢查檔案格式',
+          position: 'bottom',
+        });
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  // 修改匯出函數
   const exportCSV = () => {
     const headers = [
       'date',
@@ -367,7 +446,6 @@ const Settings: React.FC = () => {
       'notes',
     ];
 
-    // 使用中文欄位名稱
     const headerRow = headers.map(key => CSV_HEADERS[key as keyof typeof CSV_HEADERS]).join(',');
 
     const rows = records.map((record) =>
@@ -376,7 +454,7 @@ const Settings: React.FC = () => {
         
         // 處理時間格式
         if (key === 'startTime' || key === 'endTime') {
-          return dayjs(value as string).format('HH:mm');
+          return formatTimeForCSV(value as string);
         }
         
         // 處理可能包含逗號的字串值
@@ -394,47 +472,6 @@ const Settings: React.FC = () => {
     link.href = URL.createObjectURL(blob);
     link.download = `充電記錄_${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
-  };
-
-  // 匯入 CSV
-  const importCSV = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const text = e.target?.result as string;
-      const [headers, ...rows] = text.split('\n');
-      
-      const records = rows.map((row) => {
-        const values = row.split(',');
-        return {
-          date: values[0],
-          currentMileage: Number(values[1]),
-          increasedMileage: Number(values[2]),
-          startTime: values[3],
-          endTime: values[4],
-          duration: Number(values[5]),
-          vendor: values[6],
-          stationName: values[7],
-          specification: values[8],
-          power: Number(values[9]),
-          unit: values[10],
-          pricePerUnit: Number(values[11]),
-          pricePerMinute: Number(values[12]),
-          chargingFee: Number(values[13]),
-          parkingFee: Number(values[14]),
-          notes: values[15],
-        };
-      });
-
-      // TODO: 實現匯入記錄的邏輯
-      Toast.show({
-        content: `成功匯入 ${records.length} 筆錄`,
-        position: 'bottom',
-      });
-    };
-    reader.readAsText(file);
   };
 
   // 添加維修記錄的欄位映射
