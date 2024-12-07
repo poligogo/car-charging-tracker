@@ -37,4 +37,14 @@ export interface MonthlyStats {
   totalPower: number;
   chargingCount: number;
   averagePrice: number;
+}
+
+export interface MaintenanceRecord {
+  id: string;
+  date: string;
+  shopName: string;
+  mileage: number;
+  items: string;
+  cost: number;
+  notes?: string;
 } 

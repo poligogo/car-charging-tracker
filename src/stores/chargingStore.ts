@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { db } from '../services/db';
-import type { ChargingRecord, Vehicle, ChargingStation, MonthlyStats } from '../types';
+import type { ChargingRecord, Vehicle, ChargingStation, MonthlyStats, MaintenanceRecord } from '../types';
 
 interface ChargingState {
   records: ChargingRecord[];
@@ -8,6 +8,7 @@ interface ChargingState {
   vehicles: Vehicle[];
   currentVehicle: Vehicle | null;
   monthlyStats: MonthlyStats;
+  maintenanceRecords: MaintenanceRecord[];
   
   // 記錄相關
   addRecord: (record: Omit<ChargingRecord, 'id'>) => Promise<void>;
@@ -28,6 +29,10 @@ interface ChargingState {
   
   // 統計相關
   calculateMonthlyStats: (month: string) => Promise<void>;
+  
+  // 維修記錄相關
+  addMaintenanceRecord: (record: MaintenanceRecord) => Promise<void>;
+  loadMaintenanceRecords: () => Promise<void>;
 }
 
 export const useChargingStore = create<ChargingState>((set, get) => ({
@@ -41,6 +46,7 @@ export const useChargingStore = create<ChargingState>((set, get) => ({
     chargingCount: 0,
     averagePrice: 0
   },
+  maintenanceRecords: [],
 
   addRecord: async (record) => {
     const id = await db.records.add(record as ChargingRecord);
@@ -151,5 +157,25 @@ export const useChargingStore = create<ChargingState>((set, get) => ({
     const vehicles = await db.vehicles.toArray();
     const currentVehicle = vehicles.find(v => v.isDefault) || null;
     set({ vehicles, currentVehicle });
+  },
+
+  addMaintenanceRecord: async (record: MaintenanceRecord) => {
+    try {
+      await db.maintenance.add(record);
+      set(state => ({
+        maintenanceRecords: [...state.maintenanceRecords, record]
+      }));
+    } catch (error) {
+      console.error('Failed to add maintenance record:', error);
+    }
+  },
+
+  loadMaintenanceRecords: async () => {
+    try {
+      const records = await db.maintenance.toArray();
+      set({ maintenanceRecords: records });
+    } catch (error) {
+      console.error('Failed to load maintenance records:', error);
+    }
   },
 })); 

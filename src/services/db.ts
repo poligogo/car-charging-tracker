@@ -1,17 +1,19 @@
 import Dexie, { Table } from 'dexie';
-import { ChargingRecord, Vehicle, ChargingStation } from '../types';
+import type { ChargingRecord, ChargingStation, Vehicle, MaintenanceRecord } from '../types';
 
 export class ChargingDatabase extends Dexie {
   records!: Table<ChargingRecord>;
-  vehicles!: Table<Vehicle>;
   stations!: Table<ChargingStation>;
+  vehicles!: Table<Vehicle>;
+  maintenance!: Table<MaintenanceRecord>;
 
   constructor() {
-    super('ChargingDB');
+    super('ChargingDatabase');
     this.version(1).stores({
-      records: '++id, date, vendor, stationName',
-      vehicles: '++id, name',
-      stations: '++id, vendor, name'
+      records: '++id',
+      stations: '++id',
+      vehicles: '++id',
+      maintenance: '++id'
     });
   }
 }

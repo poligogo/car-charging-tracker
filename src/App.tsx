@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { TabBar } from 'antd-mobile';
-import { AppOutline, UnorderedListOutline, SetOutline } from 'antd-mobile-icons';
-import { Home, Records, Statistics, Settings } from './pages';
+import { AppOutline, UnorderedListOutline, SetOutline, SetOutline as ToolOutline } from 'antd-mobile-icons';
+import { Home, Records, Statistics, Settings, Maintenance } from './pages';
 import ErrorBoundary from './components/ErrorBoundary';
 
 const TabBarWrapper = () => {
@@ -25,6 +25,11 @@ const TabBarWrapper = () => {
         key="/statistics"
       />
       <TabBar.Item
+        title="維修紀錄"
+        icon={<ToolOutline />}
+        key="/maintenance"
+      />
+      <TabBar.Item
         title="設定"
         icon={<SetOutline />}
         key="/settings"
@@ -42,6 +47,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/records" element={<Records />} />
             <Route path="/statistics" element={<Statistics />} />
+            <Route path="/maintenance" element={<Maintenance />} />
             <Route path="/settings" element={<Settings />} />
           </Routes>
           <TabBarWrapper />
