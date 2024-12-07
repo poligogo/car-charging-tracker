@@ -5,7 +5,7 @@ import type { Vehicle } from '../types';
 import { db } from '../services/db';
 
 const Settings: React.FC = () => {
-  const { vehicles, loadVehicles, addVehicle, setDefaultVehicle, deleteVehicle, updateVehicle, records } = useChargingStore();
+  const { vehicles, loadVehicles, addVehicle, setDefaultVehicle, deleteVehicle, updateVehicle, records, maintenanceRecords } = useChargingStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [form] = Form.useForm();
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
@@ -29,7 +29,7 @@ const Settings: React.FC = () => {
         ? values.imageUrl[0].url 
         : null;
 
-      // 如果是第一台車，先詢���是否設為預設車輛
+      // 如果是���一台車，先詢���是否設為預設車輛
       if (vehicles.length === 0) {
         return new Promise((resolve) => {
           Dialog.confirm({
@@ -414,6 +414,51 @@ const Settings: React.FC = () => {
     reader.readAsText(file);
   };
 
+  // 添加維修記錄的欄位映射
+  const MAINTENANCE_CSV_HEADERS = {
+    date: '日期',
+    mileage: '里程數',
+    type: '維修類型',
+    location: '維修地點',
+    cost: '維修費用',
+    description: '維修內容',
+    nextMaintenance: '下次保養里程',
+    notes: '備註'
+  };
+
+  // 添加維修記錄的匯出函數
+  const exportMaintenanceCSV = () => {
+    const headers = [
+      'date',
+      'mileage',
+      'type',
+      'location',
+      'cost',
+      'description',
+      'nextMaintenance',
+      'notes'
+    ];
+
+    const headerRow = headers.map(key => MAINTENANCE_CSV_HEADERS[key as keyof typeof MAINTENANCE_CSV_HEADERS]).join(',');
+
+    const rows = maintenanceRecords.map((record) =>
+      headers.map(key => {
+        const value = record[key as keyof typeof record];
+        if (typeof value === 'string' && value.includes(',')) {
+          return `"${value}"`;
+        }
+        return value;
+      }).join(',')
+    );
+
+    const csv = [headerRow, ...rows].join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `維修記錄_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+  };
+
   return (
     <div className="settings-page">
       <h1>設定</h1>
@@ -477,8 +522,19 @@ const Settings: React.FC = () => {
             </Button>
           }
         >
-          匯出資料 (CSV)
+          匯出充電記錄
         </List.Item>
+
+        <List.Item
+          extra={
+            <Button size='small' color='primary' onClick={exportMaintenanceCSV}>
+              匯出
+            </Button>
+          }
+        >
+          匯出維修記錄
+        </List.Item>
+
         <List.Item
           extra={
             <>
@@ -499,7 +555,7 @@ const Settings: React.FC = () => {
             </>
           }
         >
-          匯入資料 (CSV)
+          匯入資料
         </List.Item>
       </List>
     </div>
