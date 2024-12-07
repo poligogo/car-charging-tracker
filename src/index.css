@@ -28,7 +28,7 @@
   :root {
     --ios-background: #000000;
     --ios-card: #1C1C1E;
-    --ios-input-bg: #1C1C1E;
+    --ios-input-bg: #2C2C2E;  /* 稍微調亮輸入框背景 */
     --ios-text: #FFFFFF;
     --ios-text-secondary: #98989D;
     --ios-text-tertiary: #8E8E93;
@@ -54,12 +54,14 @@ body {
 .adm-form-item {
   padding: 12px 16px;
   border-bottom: 0.5px solid var(--ios-border);
+  background: var(--ios-card);
 }
 
 .adm-form-item-label {
   font-size: 17px;
-  font-weight: 400;
+  font-weight: 500;
   color: var(--ios-text);
+  margin-bottom: 8px;
 }
 
 /* 輸入框樣式 */
@@ -85,6 +87,7 @@ body {
   font-weight: 500;
   font-size: 17px;
   padding: 12px 24px;
+  color: #FFFFFF;  /* 確保按��文字為白色 */
 }
 
 .adm-button-primary {
@@ -103,6 +106,7 @@ body {
 .adm-list-item {
   padding: 12px 16px;
   border-bottom: 0.5px solid var(--ios-border);
+  background: var(--ios-card);
 }
 
 .adm-list-header {
@@ -118,8 +122,10 @@ body {
   font-size: 17px;
   padding: 12px 0;
   color: var(--ios-text);
-  background: transparent;
-  border: none;
+  background: var(--ios-input-bg);
+  border: 1px solid var(--ios-border);
+  border-radius: var(--ios-border-radius);
+  padding: 12px;
 }
 
 .vendor-dropdown,
@@ -136,6 +142,7 @@ body {
   font-size: 17px;
   padding: 14px 16px;
   color: var(--ios-text);
+  background: var(--ios-card);
   border-bottom: 0.5px solid var(--ios-border);
 }
 
@@ -336,4 +343,55 @@ h1 {
   .vehicle-name {
     color: #fff;
   }
+}
+
+/* 修改表單標題�式 */
+.adm-form-header {
+  padding: 16px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ios-primary);
+  background: var(--ios-background);
+}
+
+/* 增加表單區塊之間的間距 */
+.adm-form + .adm-form {
+  margin-top: 20px;
+}
+
+/* 調整列表項目樣式 */
+.adm-list-item {
+  background: var(--ios-card);
+  border-bottom: 0.5px solid var(--ios-border);
+}
+
+.adm-list-item-content {
+  color: var(--ios-text);
+}
+
+/* 調整記錄詳情樣式 */
+.record-details {
+  color: var(--ios-text-secondary);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.record-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 4px 0;
+}
+
+.record-row span {
+  color: var(--ios-text);
+}
+
+/* 調整按鈕文字顏色 */
+.adm-button {
+  color: #FFFFFF;  /* 確保按鈕文字為白色 */
+}
+
+.adm-button-default {
+  color: var(--ios-text);  /* 預設按鈕使用主文字顏色 */
+  border: 1px solid var(--ios-border);
 }

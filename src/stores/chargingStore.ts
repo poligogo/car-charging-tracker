@@ -91,12 +91,38 @@ export const useChargingStore = create<ChargingState>((set, get) => ({
     set({ stations });
   },
 
-  addVehicle: async (vehicle) => {
-    const id = await db.vehicles.add(vehicle as Vehicle);
-    const newVehicle = { ...vehicle, id: id.toString() };
-    set(state => ({
-      vehicles: [...state.vehicles, newVehicle]
-    }));
+  addVehicle: async (vehicle: Omit<Vehicle, 'id'>) => {
+    try {
+      console.log('Adding vehicle:', vehicle);
+      
+      // 檢查是否已存在相同名稱的�輛
+      const existingVehicle = get().vehicles.find(v => v.name === vehicle.name);
+      if (existingVehicle) {
+        throw new Error('車輛名稱已存在');
+      }
+
+      const newId = Date.now().toString();
+      const newVehicle: Vehicle = {
+        ...vehicle,
+        id: newId,
+      };
+
+      console.log('Before DB add');
+      await db.vehicles.add(newVehicle);
+      console.log('After DB add');
+
+      console.log('Current state:', get().vehicles);
+      set(state => {
+        console.log('Setting new state with:', newVehicle);
+        return {
+          vehicles: [...state.vehicles, newVehicle],
+          currentVehicle: vehicle.isDefault ? newVehicle : state.currentVehicle
+        };
+      });
+    } catch (error) {
+      console.error('Store addVehicle failed:', error);
+      throw error;
+    }
   },
 
   setDefaultVehicle: async (id) => {

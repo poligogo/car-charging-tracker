@@ -16,25 +16,35 @@ const Settings: React.FC = () => {
 
   const handleAddVehicle = async (values: Partial<Vehicle>) => {
     try {
-      const imageUrl = Array.isArray(values.imageUrl) 
-        ? values.imageUrl[0]?.url 
-        : values.imageUrl;
+      if (!values.name) {
+        Toast.show({
+          content: '請輸入車名稱',
+          position: 'bottom',
+        });
+        return;
+      }
 
-      await addVehicle({
-        ...values,
-        id: Date.now().toString(),
+      const imageUrl = Array.isArray(values.imageUrl) && values.imageUrl.length > 0
+        ? values.imageUrl[0].url 
+        : null;
+
+      const newVehicle: Omit<Vehicle, 'id'> = {
+        name: values.name,
+        imageUrl: imageUrl,
         isDefault: vehicles.length === 0,
-        imageUrl,
-      } as Vehicle);
+      };
+
+      await addVehicle(newVehicle);
       
       Toast.show({
         content: '新增車輛成功',
         position: 'bottom',
       });
       
-      Dialog.clear();
       form.resetFields();
+      Dialog.clear();
     } catch (error) {
+      console.error('Add vehicle failed:', error);
       Toast.show({
         content: '新增車輛失敗',
         position: 'bottom',
@@ -82,7 +92,7 @@ const Settings: React.FC = () => {
           layout='horizontal'
           onFinish={handleAddVehicle}
           footer={
-            <Button block type='submit' color='primary' onClick={() => form.submit()}>
+            <Button block type='submit' color='primary'>
               確認
             </Button>
           }
@@ -102,9 +112,7 @@ const Settings: React.FC = () => {
                     form.setFieldsValue({ 
                       imageUrl: [{ url }]
                     });
-                    resolve({
-                      url
-                    });
+                    resolve({ url });
                   };
                   reader.readAsDataURL(file);
                 });
@@ -119,7 +127,9 @@ const Settings: React.FC = () => {
       ),
       closeOnAction: true,
       closeOnMaskClick: true,
-      onClose: () => form.resetFields(),
+      onClose: () => {
+        form.resetFields();
+      },
     });
   };
 
@@ -129,7 +139,7 @@ const Settings: React.FC = () => {
     try {
       const imageUrl = values.imageUrl && Array.isArray(values.imageUrl) && values.imageUrl.length > 0
         ? values.imageUrl[0].url
-        : null;
+        : editingVehicle.imageUrl;
 
       await updateVehicle(editingVehicle.id, {
         name: values.name,
@@ -142,9 +152,11 @@ const Settings: React.FC = () => {
         position: 'bottom',
       });
 
-      Dialog.clear();
+      await loadVehicles();
+      
       form.resetFields();
       setEditingVehicle(null);
+      Dialog.clear();
     } catch (error) {
       console.error('Edit vehicle failed:', error);
       Toast.show({
