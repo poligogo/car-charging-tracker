@@ -114,7 +114,7 @@ const Settings: React.FC = () => {
 
   const handleDeleteVehicle = async (vehicle: Vehicle) => {
     Dialog.confirm({
-      title: '確認��除嗎？',
+      title: '確認��？',
       content: vehicle.isDefault 
         ? `此車輛為預設車輛，刪除後將需要重新設定預設車輛。確定要刪除 ${vehicle.name} 嗎？`
         : `確定要刪除 ${vehicle.name} 嗎？`,
@@ -158,7 +158,7 @@ const Settings: React.FC = () => {
           <Form.Item name='purchaseDate' label='購買日期' rules={[{ required: true }]}>
             <Input 
               type="date" 
-              placeholder="選���購買日期"
+              placeholder="購買日���"
               defaultValue={dayjs().format('YYYY-MM-DD')}
             />
           </Form.Item>
@@ -337,7 +337,7 @@ const Settings: React.FC = () => {
     vendor: '充電店家',
     stationName: '充電站',
     specification: '充電規格',
-    power: '充電電量',
+    power: '電量',
     unit: '單位',
     pricePerUnit: '每度電價',
     pricePerMinute: '每分鐘價格',
@@ -349,7 +349,7 @@ const Settings: React.FC = () => {
   // 添加時間格式處理的輔助函數
   const formatTimeForDB = (timeStr: string) => {
     // 如果時間格式是 HH:mm，轉換為完整的 ISO 格式
-    if (timeStr.length === 5) { // 格式� "HH:mm"
+    if (timeStr.length === 5) { // 格式 "HH:mm"
       const today = dayjs().format('YYYY-MM-DD');
       return dayjs(`${today} ${timeStr}`).toISOString();
     }
@@ -369,20 +369,24 @@ const Settings: React.FC = () => {
     const reader = new FileReader();
     reader.onload = async (e) => {
       try {
+        console.log('開始匯入 CSV');
         const text = e.target?.result as string;
         const [headers, ...rows] = text.split('\n');
+        console.log('CSV 標題:', headers);
+        console.log('CSV 行數:', rows.length);
         
         const records = rows
           .filter(row => row.trim())
           .map((row) => {
             const values = row.split(',');
+            const date = dayjs(values[0]).format('YYYY-MM-DD');
             return {
               id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-              date: values[0],
+              date,
               currentMileage: Number(values[1]),
               increasedMileage: Number(values[2]),
-              startTime: formatTimeForDB(values[3]), // 處理開始時間
-              endTime: formatTimeForDB(values[4]),   // 處理結束時間
+              startTime: formatTimeForDB(values[3]),
+              endTime: formatTimeForDB(values[4]),
               duration: Number(values[5]),
               vendor: values[6],
               stationName: values[7],
@@ -397,13 +401,30 @@ const Settings: React.FC = () => {
             };
           });
 
-        await db.records.bulkAdd(records);
-        const updatedRecords = await db.records.toArray();
-        useChargingStore.setState({ records: updatedRecords });
+        console.log('處理後的記錄:', records);
+
+        // 先清空現有記錄
+        await db.records.clear();
+        console.log('已清空現有記錄');
         
-        // 更新當月統計
-        const currentMonth = new Date().toISOString().slice(0, 7);
-        await useChargingStore.getState().calculateMonthlyStats(currentMonth);
+        // 批量添加新記錄
+        await db.records.bulkAdd(records);
+        console.log('已添加新記錄到數據庫');
+
+        // 驗證數據庫中的記錄
+        const dbRecords = await db.records.toArray();
+        console.log('數據庫中的記錄數:', dbRecords.length);
+
+        // 更新 store 中的記錄
+        const store = useChargingStore.getState();
+        await store.loadRecords();
+        console.log('Store 中的記錄數:', store.records.length);
+
+        // 驗證月度統計
+        const currentMonth = dayjs().format('YYYY-MM');
+        console.log('當前月份:', currentMonth);
+        await store.calculateMonthlyStats(currentMonth);
+        console.log('更新後的月度統計:', store.monthlyStats);
 
         Toast.show({
           content: `成功匯入 ${records.length} 筆紀錄`,
@@ -414,8 +435,15 @@ const Settings: React.FC = () => {
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
+
+        // 延遲重新加載頁面
+        console.log('準備重新加載頁面...');
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+
       } catch (error) {
-        console.error('Import failed:', error);
+        console.error('匯入失敗:', error);
         Toast.show({
           content: '匯入失敗，請檢查檔案格式',
           position: 'bottom',
@@ -457,7 +485,7 @@ const Settings: React.FC = () => {
           return formatTimeForCSV(value as string);
         }
         
-        // 處理可能包含逗號的字串值
+        // 處理可能包含逗號的字��值
         if (typeof value === 'string' && value.includes(',')) {
           return `"${value}"`;
         }

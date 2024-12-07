@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useChargingStore } from '../stores/chargingStore';
 import dayjs from 'dayjs';
 
 const Home: React.FC = () => {
-  const { currentVehicle, monthlyStats } = useChargingStore();
+  const { currentVehicle, monthlyStats, calculateMonthlyStats, records } = useChargingStore();
 
   const calculateDaysWithCar = (purchaseDate?: string) => {
     if (!purchaseDate) return null;
@@ -21,6 +21,29 @@ const Home: React.FC = () => {
   const daysWithCar = currentVehicle?.purchaseDate 
     ? calculateDaysWithCar(currentVehicle.purchaseDate)
     : null;
+
+  useEffect(() => {
+    const handleRecordsImported = (event: CustomEvent) => {
+      const { month } = event.detail;
+      calculateMonthlyStats(month);
+    };
+
+    window.addEventListener('recordsImported', handleRecordsImported as EventListener);
+    return () => window.removeEventListener('recordsImported', handleRecordsImported as EventListener);
+  }, [calculateMonthlyStats]);
+
+  // 添加初始加載
+  useEffect(() => {
+    console.log('Home 頁面初始化');
+    // 使用最新記錄的月份，而不是當前月份
+    const latestMonth = dayjs(records[records.length - 1]?.date || '').format('YYYY-MM');
+    console.log('最新記錄月份:', latestMonth);
+    calculateMonthlyStats(latestMonth);
+  }, [calculateMonthlyStats, records]);
+
+  useEffect(() => {
+    console.log('月度統計更新:', monthlyStats);
+  }, [monthlyStats]);
 
   return (
     <div className="tesla-home">

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { db } from '../services/db';
 import type { ChargingRecord, Vehicle, ChargingStation, MonthlyStats, MaintenanceRecord } from '../types';
+import dayjs from 'dayjs';
 
 interface ChargingState {
   records: ChargingRecord[];
@@ -113,11 +114,16 @@ export const useChargingStore = create<ChargingState>((set, get) => ({
   loadRecords: async () => {
     try {
       const records = await db.records.toArray();
+      console.log('Loaded records:', records.length);
       set({ records });
 
-      // 加載記錄後立即更新當月統計
-      const currentMonth = new Date().toISOString().slice(0, 7);
-      await get().calculateMonthlyStats(currentMonth);
+      // 使用最新記錄的月份
+      const sortedRecords = [...records].sort((a, b) => 
+        dayjs(b.date).valueOf() - dayjs(a.date).valueOf()
+      );
+      const latestMonth = dayjs(sortedRecords[0]?.date || '').format('YYYY-MM');
+      console.log('Latest month:', latestMonth);
+      await get().calculateMonthlyStats(latestMonth);
     } catch (error) {
       console.error('Failed to load records:', error);
       throw error;
@@ -196,43 +202,46 @@ export const useChargingStore = create<ChargingState>((set, get) => ({
     try {
       console.log('Calculating stats for month:', month);
       
-      const records = await db.records
-        .where('date')
-        .startsWith(month)
-        .toArray();
+      // 從當前 state 獲取記錄
+      const allRecords = get().records;
+      console.log('Total records:', allRecords.length);
 
-      console.log('Found records:', records);
+      // 輸出一些記錄的日期例，用於調試
+      console.log('Sample record dates:', allRecords.slice(0, 3).map(r => r.date));
+      
+      // 確保月份格式一致
+      const normalizedMonth = dayjs(month).format('YYYY-MM');
+      console.log('Normalized month:', normalizedMonth);
 
-      if (records.length === 0) {
-        console.log('No records found, setting stats to 0');
-        set({
-          monthlyStats: {
-            totalCost: 0,
-            totalPower: 0,
-            chargingCount: 0,
-            averagePrice: 0
-          }
-        });
-        return;
-      }
+      const monthlyRecords = allRecords.filter(r => {
+        const recordMonth = dayjs(r.date).format('YYYY-MM');
+        const matches = recordMonth === normalizedMonth;
+        console.log(`Record date: ${r.date}, month: ${recordMonth}, matches: ${matches}`);
+        return matches;
+      });
+      
+      console.log('Found records for month:', monthlyRecords.length);
 
-      const totalCost = records.reduce((sum, r) => sum + (r.chargingFee || 0) + (r.parkingFee || 0), 0);
-      const totalPower = records.reduce((sum, r) => sum + (r.power || 0), 0);
+      const totalCost = monthlyRecords.reduce((sum, r) => sum + (r.chargingFee || 0) + (r.parkingFee || 0), 0);
+      const totalPower = monthlyRecords.reduce((sum, r) => sum + (r.power || 0), 0);
+      const chargingCount = monthlyRecords.length;
+      const averagePrice = totalPower ? Number((totalCost / totalPower).toFixed(3)) : 0;
 
-      console.log('Calculated values:', { totalCost, totalPower, count: records.length });
+      console.log('Calculated stats:', {
+        totalCost,
+        totalPower,
+        chargingCount,
+        averagePrice
+      });
 
-      const stats: MonthlyStats = {
-        totalCost: Math.round(totalCost * 100) / 100,
-        totalPower: totalPower,
-        chargingCount: records.length,
-        averagePrice: totalPower ? Number((totalCost / totalPower).toFixed(3)) : 0
-      };
-
-      console.log('Setting new stats:', stats);
-      set({ monthlyStats: stats });
-
-      // 觸發圖表重新渲染
-      window.dispatchEvent(new Event('recordsUpdated'));
+      set({
+        monthlyStats: {
+          totalCost: Math.round(totalCost * 100) / 100,
+          totalPower,
+          chargingCount,
+          averagePrice
+        }
+      });
     } catch (error) {
       console.error('Calculate monthly stats failed:', error);
       throw error;

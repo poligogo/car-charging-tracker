@@ -419,6 +419,10 @@ input[inputmode="decimal"] {
   height: 400px;
   width: 100%;
   margin: 16px 0;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
 }
 
 .statistics-page .adm-tabs {
@@ -428,17 +432,18 @@ input[inputmode="decimal"] {
 
 .statistics-page .adm-tabs-content {
   padding: 16px;
-  background: var(--ios-card);
-  border-radius: var(--ios-border-radius);
+  background: transparent;
 }
 
 .statistics-page .adm-tabs-tab {
   font-size: 15px;
   padding: 12px;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .statistics-page .adm-tabs-tab-active {
   font-weight: 600;
+  color: #fff;
 }
 
 /* 維修項目樣式 */

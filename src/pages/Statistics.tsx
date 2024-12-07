@@ -8,9 +8,13 @@ import dayjs from 'dayjs';
 const Statistics: React.FC = () => {
   const { records, loadRecords, calculateMonthlyStats } = useChargingStore();
   const [activeKey, setActiveKey] = useState('cost');
-  const [currentMonth, setCurrentMonth] = useState(dayjs().format('YYYY-MM'));
+  const [currentMonth, setCurrentMonth] = useState(() => {
+    const sortedRecords = [...records].sort((a, b) => 
+      dayjs(b.date).valueOf() - dayjs(a.date).valueOf()
+    );
+    return dayjs(sortedRecords[0]?.date || '').format('YYYY-MM');
+  });
   
-  // 使用 ref 來保存圖表實例
   const chartRefs = useRef<{[key: string]: echarts.ECharts | null}>({
     cost: null,
     power: null,
@@ -22,18 +26,33 @@ const Statistics: React.FC = () => {
   useEffect(() => {
     const initData = async () => {
       await loadRecords();
-      await calculateMonthlyStats(currentMonth);
+      // 獲取最新月份
+      const sortedRecords = [...records].sort((a, b) => 
+        dayjs(b.date).valueOf() - dayjs(a.date).valueOf()
+      );
+      const latestMonth = dayjs(sortedRecords[0]?.date || '').format('YYYY-MM');
+      setCurrentMonth(latestMonth);
+      calculateMonthlyStats(latestMonth);
     };
     initData();
   }, []);
 
   // 監聽 records 變化，重新渲染圖表
   useEffect(() => {
-    if (records.length > 0) {
-      const monthlyRecords = records.filter(r => r.date.startsWith(currentMonth));
+    console.log('Records updated:', records.length); // 添加日誌
+    const monthlyRecords = records.filter(r => r.date.startsWith(currentMonth));
+    console.log('Monthly records:', monthlyRecords.length); // 添加日誌
+    
+    if (monthlyRecords.length > 0) {
       renderCharts(monthlyRecords);
     }
   }, [records, currentMonth, activeKey]);
+
+  // 添加月份選擇器
+  const handleMonthChange = (value: string) => {
+    setCurrentMonth(value);
+    calculateMonthlyStats(value);
+  };
 
   // 處理視窗大小變化
   useEffect(() => {
@@ -90,25 +109,75 @@ const Statistics: React.FC = () => {
     const chart = initChart('costChart', 'cost');
     if (!chart) return;
     
+    // 按日期排序並分組數據
     const dailyData = data.reduce((acc, record) => {
       const day = record.date.slice(8, 10);
-      acc[day] = (acc[day] || 0) + record.chargingFee + (record.parkingFee || 0);
+      const cost = record.chargingFee + (record.parkingFee || 0);
+      acc[day] = (acc[day] || 0) + cost;
       return acc;
     }, {} as Record<string, number>);
 
+    // 獲取排序後的日期
+    const sortedDays = Object.keys(dailyData).sort((a, b) => Number(a) - Number(b));
+
     const option = {
-      title: { text: '月度支出趨勢' },
-      tooltip: { trigger: 'axis' },
+      title: {
+        text: '月度支出趨勢',
+        left: 'center',
+        textStyle: {
+          color: '#fff'
+        }
+      },
+      tooltip: {
+        trigger: 'axis',
+        formatter: (params: any) => {
+          const day = params[0].name;
+          const value = params[0].value;
+          return `${day}日: $${value.toFixed(2)}`;
+        }
+      },
       xAxis: {
         type: 'category',
-        data: Object.keys(dailyData).sort()
+        data: sortedDays,
+        axisLabel: {
+          color: '#fff'
+        }
       },
-      yAxis: { type: 'value' },
+      yAxis: {
+        type: 'value',
+        axisLabel: {
+          formatter: (value: number) => `$${value}`,
+          color: '#fff'
+        }
+      },
       series: [{
-        data: Object.keys(dailyData).sort().map(key => dailyData[key]),
+        data: sortedDays.map(day => dailyData[day]),
         type: 'line',
-        smooth: true
-      }]
+        smooth: true,
+        lineStyle: {
+          color: '#34C759'
+        },
+        itemStyle: {
+          color: '#34C759'
+        },
+        areaStyle: {
+          color: {
+            type: 'linear',
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
+            colorStops: [{
+              offset: 0,
+              color: 'rgba(52, 199, 89, 0.4)'
+            }, {
+              offset: 1,
+              color: 'rgba(52, 199, 89, 0.1)'
+            }]
+          }
+        }
+      }],
+      backgroundColor: 'transparent'
     };
 
     chart.setOption(option);
@@ -118,24 +187,53 @@ const Statistics: React.FC = () => {
     const chart = initChart('powerChart', 'power');
     if (!chart) return;
     
+    // 按日期排序並分組數據
     const dailyData = data.reduce((acc, record) => {
       const day = record.date.slice(8, 10);
       acc[day] = (acc[day] || 0) + record.power;
       return acc;
     }, {} as Record<string, number>);
 
+    const sortedDays = Object.keys(dailyData).sort((a, b) => Number(a) - Number(b));
+
     const option = {
-      title: { text: '充電度數統計' },
-      tooltip: { trigger: 'axis' },
+      title: {
+        text: '充電度數統計',
+        left: 'center',
+        textStyle: {
+          color: '#fff'
+        }
+      },
+      tooltip: {
+        trigger: 'axis',
+        formatter: (params: any) => {
+          const day = params[0].name;
+          const value = params[0].value;
+          return `${day}日: ${value.toFixed(2)} kWh`;
+        }
+      },
       xAxis: {
         type: 'category',
-        data: Object.keys(dailyData).sort()
+        data: sortedDays,
+        axisLabel: {
+          color: '#fff'
+        }
       },
-      yAxis: { type: 'value' },
+      yAxis: {
+        type: 'value',
+        axisLabel: {
+          formatter: (value: number) => `${value} kWh`,
+          color: '#fff'
+        }
+      },
       series: [{
-        data: Object.keys(dailyData).sort().map(key => dailyData[key]),
-        type: 'bar'
-      }]
+        data: sortedDays.map(day => dailyData[day]),
+        type: 'bar',
+        itemStyle: {
+          color: '#007AFF'
+        }
+      }],
+      backgroundColor: 'transparent'
     };
 
     chart.setOption(option);
@@ -179,39 +277,105 @@ const Statistics: React.FC = () => {
     const chart = initChart('stationChart', 'station');
     if (!chart) return;
     
+    // 統計每個充電站的使用次數
     const stationCount = data.reduce((acc, record) => {
       const key = `${record.vendor}-${record.stationName}`;
       acc[key] = (acc[key] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
+    // 排序並取前 5 名
     const sortedStations = Object.entries(stationCount)
       .sort(([, a], [, b]) => b - a)
       .slice(0, 5);
 
     const option = {
-      title: { text: '常用充電站 TOP5' },
-      tooltip: { trigger: 'axis' },
-      xAxis: {
-        type: 'category',
-        data: sortedStations.map(([name]) => name)
+      title: {
+        text: '常用充電站 TOP5',
+        left: 'center',
+        textStyle: {
+          color: '#fff'
+        }
       },
-      yAxis: { type: 'value' },
+      tooltip: {
+        trigger: 'item',
+        formatter: '{b}: {c} 次 ({d}%)'
+      },
       series: [{
-        data: sortedStations.map(([, value]) => value),
-        type: 'bar'
-      }]
+        type: 'pie',
+        radius: ['40%', '70%'],
+        avoidLabelOverlap: false,
+        itemStyle: {
+          borderRadius: 10,
+          borderColor: '#fff',
+          borderWidth: 2
+        },
+        label: {
+          show: true,
+          color: '#fff',
+          formatter: '{b}\n{c}次'
+        },
+        emphasis: {
+          label: {
+            show: true,
+            fontSize: '16',
+            fontWeight: 'bold'
+          }
+        },
+        data: sortedStations.map(([name, value]) => ({
+          name,
+          value,
+          itemStyle: {
+            color: `rgba(52, 199, 89, ${0.4 + Math.random() * 0.6})`
+          }
+        }))
+      }],
+      backgroundColor: 'transparent'
     };
 
     chart.setOption(option);
   };
 
+  useEffect(() => {
+    const handleRecordsImported = (event: CustomEvent) => {
+      const { records: newRecords, month } = event.detail;
+      const monthlyRecords = newRecords.filter((r: ChargingRecord) => r.date.startsWith(month));
+      if (monthlyRecords.length > 0) {
+        setCurrentMonth(month);
+        renderCharts(monthlyRecords);
+      }
+    };
+
+    window.addEventListener('recordsImported', handleRecordsImported as EventListener);
+    return () => window.removeEventListener('recordsImported', handleRecordsImported as EventListener);
+  }, [renderCharts]);
+
   return (
     <div className="statistics-page">
       <h1>統計分析</h1>
+      
+      {/* 添加月份選擇器 */}
+      <div className="month-selector">
+        <input
+          type="month"
+          value={currentMonth}
+          onChange={(e) => handleMonthChange(e.target.value)}
+          className="month-input"
+        />
+      </div>
+
       <Tabs
         activeKey={activeKey}
-        onChange={key => setActiveKey(key)}
+        onChange={key => {
+          setActiveKey(key);
+          // 切換 tab 時重新渲染圖表
+          const monthlyRecords = records.filter(r => r.date.startsWith(currentMonth));
+          if (monthlyRecords.length > 0) {
+            setTimeout(() => {
+              renderCharts(monthlyRecords);
+            }, 100); // 添加短暫延遲確保 DOM 已更新
+          }
+        }}
       >
         <Tabs.Tab title="支出趨勢" key="cost">
           <div id="costChart" className="chart-container" />
