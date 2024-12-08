@@ -39,6 +39,15 @@
 .days-with-car {
   color: var(--text-secondary);
   font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.cake-icon {
+  font-size: 16px;
+  line-height: 1;
 }
 
 .stats-container {

@@ -65,7 +65,8 @@ const Home: React.FC = () => {
           <h1 className="vehicle-name">{currentVehicle?.name || '未設定車輛'}</h1>
           {daysWithCar && (
             <div className="days-with-car">
-              陪伴你的第 {daysWithCar}
+              <span className="cake-icon" role="img" aria-label="birthday cake">🎂</span>
+              {' '}陪伴你的第 {daysWithCar}
             </div>
           )}
         </div>
