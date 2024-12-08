@@ -16,30 +16,20 @@ export class MyDatabase extends Dexie {
       stations: '++id',
       maintenance: '++id'
     });
-
-    this.on('error', (err) => {
-      console.error('Database error:', err);
-    });
   }
 }
 
 const db = new MyDatabase();
 
 db.on('ready', () => {
-  if (!db.records.schema.indexes.some(idx => idx.name === 'date')) {
-    db.close();
-    const dbName = 'MyDatabase';
-    const req = indexedDB.deleteDatabase(dbName);
-    
-    req.onsuccess = () => {
-      console.log('Database successfully deleted');
-      window.location.reload();
-    };
-    
-    req.onerror = () => {
-      console.error('Could not delete database');
-    };
-  }
+  console.log('Database is ready');
+}).on('error', (err) => {
+  console.error('Database error:', err);
+});
+
+db.on('versionchange', () => {
+  db.close();
+  window.location.reload();
 });
 
 export { db }; 
