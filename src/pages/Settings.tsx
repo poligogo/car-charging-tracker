@@ -5,6 +5,7 @@ import type { Vehicle } from '../types';
 import { db } from '../services/db';
 import dayjs from 'dayjs';
 import { GoogleDriveService } from '../services/googleDrive';
+import '../styles/Settings.css';
 
 const Settings: React.FC = () => {
   const { vehicles, loadVehicles, addVehicle, setDefaultVehicle, deleteVehicle, updateVehicle, records, maintenanceRecords } = useChargingStore();
@@ -109,17 +110,20 @@ const Settings: React.FC = () => {
               maxCount={1}
               value={form.getFieldValue('imageUrl') || []}
               upload={async (file: File) => {
-                return new Promise((resolve) => {
-                  const reader = new FileReader();
-                  reader.onload = () => {
-                    const url = reader.result as string;
-                    form.setFieldsValue({ 
-                      imageUrl: [{ url }]
-                    });
-                    resolve({ url });
-                  };
-                  reader.readAsDataURL(file);
-                });
+                try {
+                  const resizedImageUrl = await resizeImage(file);
+                  form.setFieldsValue({ 
+                    imageUrl: [{ url: resizedImageUrl }]
+                  });
+                  return { url: resizedImageUrl };
+                } catch (error) {
+                  console.error('Image resize failed:', error);
+                  Toast.show({
+                    content: '圖片處理失敗',
+                    position: 'bottom',
+                  });
+                  throw error;
+                }
               }}
               onDelete={() => {
                 form.setFieldsValue({ imageUrl: [] });
@@ -174,17 +178,20 @@ const Settings: React.FC = () => {
               maxCount={1}
               value={form.getFieldValue('imageUrl') || []}
               upload={async (file: File) => {
-                return new Promise((resolve) => {
-                  const reader = new FileReader();
-                  reader.onload = () => {
-                    const url = reader.result as string;
-                    form.setFieldsValue({ 
-                      imageUrl: [{ url }]
-                    });
-                    resolve({ url });
-                  };
-                  reader.readAsDataURL(file);
-                });
+                try {
+                  const resizedImageUrl = await resizeImage(file);
+                  form.setFieldsValue({ 
+                    imageUrl: [{ url: resizedImageUrl }]
+                  });
+                  return { url: resizedImageUrl };
+                } catch (error) {
+                  console.error('Image resize failed:', error);
+                  Toast.show({
+                    content: '圖片處理失敗',
+                    position: 'bottom',
+                  });
+                  throw error;
+                }
               }}
               onDelete={() => {
                 form.setFieldsValue({ imageUrl: [] });
@@ -263,7 +270,7 @@ const Settings: React.FC = () => {
     }
   };
 
-  // 定義欄��映射
+  // 定義欄映射
   const CSV_HEADERS = {
     date: '日期',
     currentMileage: '當前里程',
@@ -342,7 +349,7 @@ const Settings: React.FC = () => {
 
         // 先清空現有記錄
         await db.records.clear();
-        console.log('已清空現有��錄');
+        console.log('已清空現有記錄');
         
         // 批量添加新記錄
         await db.records.bulkAdd(records);
@@ -390,7 +397,7 @@ const Settings: React.FC = () => {
     reader.readAsText(file);
   };
 
-  // 修改匯出函數
+  // 修改匯出函���
   const exportCSV = () => {
     const headers = [
       'date',
@@ -488,7 +495,7 @@ const Settings: React.FC = () => {
   const exportToGoogleDrive = async () => {
     try {
       Toast.show({
-        content: '��備匯出到 Google Drive...',
+        content: '準備匯出到 Google Drive...',
         position: 'bottom',
       });
 
@@ -570,6 +577,47 @@ const Settings: React.FC = () => {
         position: 'bottom',
       });
     }
+  };
+
+  // 添加圖片處理函數
+  const resizeImage = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 300;  // 設定最大寬度
+          const MAX_HEIGHT = 300; // 設定最大高度
+          let width = img.width;
+          let height = img.height;
+
+          // 計算縮放比例
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          // 轉換為 base64，並設定較低的品質
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          resolve(dataUrl);
+        };
+        img.src = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    });
   };
 
   return (
