@@ -4,6 +4,7 @@ import { AddOutline, DeleteOutline } from 'antd-mobile-icons';
 import { useChargingStore } from '../stores/chargingStore';
 import type { MaintenanceRecord, MaintenanceItem } from '../types';
 import dayjs from 'dayjs';
+import './Maintenance.css';
 
 const Maintenance: React.FC = () => {
   const { maintenanceRecords, addMaintenanceRecord, loadMaintenanceRecords, updateMaintenanceRecord, deleteMaintenanceRecord } = useChargingStore();
@@ -181,91 +182,104 @@ const Maintenance: React.FC = () => {
 
       <Dialog
         visible={showForm}
-        title={editingRecord ? '修改維修記錄' : '新增維修記錄'}
         content={
-          <Form
-            form={form}
-            onFinish={handleSubmit}
-            layout="vertical"
-            footer={
-              <Button block type="submit" color="primary">
-                確認
+          <div className="maintenance-form">
+            <div className="form-header">
+              <h3>{editingRecord ? '修改維修記錄' : '新增維修記錄'}</h3>
+              <Button onClick={() => {
+                setShowForm(false);
+                setEditingRecord(null);
+                setItems([]);
+                form.resetFields();
+              }}>
+                關閉
               </Button>
-            }
-          >
-            <Form.Item name="type" label="維修類型" rules={[{ required: true }]}>
-              <Input placeholder="請輸入維修類型" />
-            </Form.Item>
-            <Form.Item name="mileage" label="里程數" rules={[{ required: true }]}>
-              <Input type="number" placeholder="請輸入里程數" />
-            </Form.Item>
-            <Form.Item name="location" label="維修地點" rules={[{ required: true }]}>
-              <Input placeholder="請輸入維修地點" />
-            </Form.Item>
-            <Form.Item name="date" label="維修日期" rules={[{ required: true }]}>
-              <Input 
-                type="date" 
-                placeholder="請選擇維修日期"
-                defaultValue={dayjs().format('YYYY-MM-DD')}
-              />
-            </Form.Item>
-
-            <div className="maintenance-items">
-              <div className="items-header">
-                <h4>維修項目</h4>
-                <Button
-                  size='small'
-                  onClick={addItem}
-                >
-                  <AddOutline /> 新增項目
-                </Button>
-              </div>
-              
-              {items.map(item => (
-                <Card key={item.id} className="item-card">
-                  <div className="item-form">
-                    <Form.Item label="項目名稱">
-                      <Input
-                        value={item.name}
-                        onChange={val => updateItem(item.id, { name: val })}
-                        placeholder="請輸入項目名稱"
-                      />
-                    </Form.Item>
-                    <div className="item-numbers">
-                      <Form.Item label="數量">
-                        <Input
-                          type="number"
-                          value={item.quantity.toString()}
-                          onChange={val => updateItem(item.id, { quantity: Number(val) })}
-                        />
-                      </Form.Item>
-                      <Form.Item label="單價">
-                        <Input
-                          type="number"
-                          value={item.price.toString()}
-                          onChange={val => updateItem(item.id, { price: Number(val) })}
-                        />
-                      </Form.Item>
-                    </div>
-                    <div className="item-total">
-                      小計: ${item.total}
-                      <Button
-                        fill='none'
-                        color='danger'
-                        onClick={() => removeItem(item.id)}
-                      >
-                        <DeleteOutline />
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-              
-              <div className="total-cost">
-                總費用: ${calculateTotalCost()}
-              </div>
             </div>
-          </Form>
+            
+            <Form
+              form={form}
+              onFinish={handleSubmit}
+              layout="vertical"
+              footer={
+                <Button block type="submit" color="primary">
+                  確認
+                </Button>
+              }
+            >
+              <Form.Item name="type" label="維修類型" rules={[{ required: true }]}>
+                <Input placeholder="請輸入維修類型" />
+              </Form.Item>
+              <Form.Item name="mileage" label="里程數" rules={[{ required: true }]}>
+                <Input type="number" placeholder="請輸入里程數" />
+              </Form.Item>
+              <Form.Item name="location" label="維修地點" rules={[{ required: true }]}>
+                <Input placeholder="請輸入維修地點" />
+              </Form.Item>
+              <Form.Item name="date" label="維修日期" rules={[{ required: true }]}>
+                <Input 
+                  type="date" 
+                  placeholder="請選擇維修日期"
+                  defaultValue={dayjs().format('YYYY-MM-DD')}
+                />
+              </Form.Item>
+
+              <div className="maintenance-items">
+                <div className="items-header">
+                  <h4>維修項目</h4>
+                  <Button
+                    size='small'
+                    onClick={addItem}
+                  >
+                    <AddOutline /> 新增項目
+                  </Button>
+                </div>
+                
+                {items.map(item => (
+                  <Card key={item.id} className="item-card">
+                    <div className="item-form">
+                      <Form.Item label="項目名稱">
+                        <Input
+                          value={item.name}
+                          onChange={val => updateItem(item.id, { name: val })}
+                          placeholder="請輸入項目名稱"
+                        />
+                      </Form.Item>
+                      <div className="item-numbers">
+                        <Form.Item label="數量">
+                          <Input
+                            type="number"
+                            value={item.quantity.toString()}
+                            onChange={val => updateItem(item.id, { quantity: Number(val) })}
+                          />
+                        </Form.Item>
+                        <Form.Item label="單價">
+                          <Input
+                            type="number"
+                            value={item.price.toString()}
+                            onChange={val => updateItem(item.id, { price: Number(val) })}
+                          />
+                        </Form.Item>
+                      </div>
+                      <div className="item-total">
+                        小計: ${item.total}
+                        <Button
+                          fill='none'
+                          color='danger'
+                          onClick={() => removeItem(item.id)}
+                        >
+                          <DeleteOutline />
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+                
+                <div className="total-cost">
+                  總費用: ${calculateTotalCost()}
+                </div>
+              </div>
+            </Form>
+          </div>
         }
         closeOnAction
         closeOnMaskClick
