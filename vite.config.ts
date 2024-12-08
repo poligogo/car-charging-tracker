@@ -15,5 +15,9 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: true
+  },
+  server: {
+    historyApiFallback: true,
+    middlewareMode: true
   }
 })

@@ -16,6 +16,10 @@ export class MyDatabase extends Dexie {
       stations: '++id',
       maintenance: '++id'
     });
+
+    this.on('error', (err) => {
+      console.error('Database error:', err);
+    });
   }
 }
 

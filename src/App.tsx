@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 import { TabBar } from 'antd-mobile';
 import { AppOutline, UnorderedListOutline, SetOutline, SetOutline as ToolOutline } from 'antd-mobile-icons';
 import { Home, Records, Statistics, Settings, Maintenance } from './pages';
@@ -55,7 +55,7 @@ const TabBarWrapper = () => {
 function App() {
   return (
     <ErrorBoundary>
-      <Router>
+      <BrowserRouter>
         <div className="app">
           <Routes>
             <Route path="/" element={<Home />} />
@@ -66,7 +66,7 @@ function App() {
           </Routes>
           <TabBarWrapper />
         </div>
-      </Router>
+      </BrowserRouter>
     </ErrorBoundary>
   );
 }
