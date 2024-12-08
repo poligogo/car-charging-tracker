@@ -1,6 +1,12 @@
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { TabBar } from 'antd-mobile';
-import { AppOutline, UnorderedListOutline, SetOutline, SetOutline as ToolOutline } from 'antd-mobile-icons';
+import {
+  AppOutline,
+  BankcardOutline,
+  UnorderedListOutline,
+  UserOutline,
+  SetOutline
+} from 'antd-mobile-icons';
 import { Home, Records, Statistics, Settings, Maintenance } from './pages';
 import ErrorBoundary from './components/ErrorBoundary';
 import { useEffect } from 'react';
@@ -23,9 +29,9 @@ const TabBarWrapper = () => {
   return (
     <TabBar onChange={value => navigate(value)}>
       <TabBar.Item title="首頁" icon={<AppOutline />} key="/" />
-      <TabBar.Item title="充電記錄" icon={<UnorderedListOutline />} key="/records" />
+      <TabBar.Item title="充電記錄" icon={<BankcardOutline />} key="/records" />
       <TabBar.Item title="統計" icon={<UnorderedListOutline />} key="/statistics" />
-      <TabBar.Item title="維修紀錄" icon={<ToolOutline />} key="/maintenance" />
+      <TabBar.Item title="維修紀錄" icon={<UserOutline />} key="/maintenance" />
       <TabBar.Item title="設定" icon={<SetOutline />} key="/settings" />
     </TabBar>
   );
