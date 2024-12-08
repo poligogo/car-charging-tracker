@@ -16,20 +16,20 @@ export class MyDatabase extends Dexie {
       stations: '++id',
       maintenance: '++id'
     });
+
+    this.on('ready', () => {
+      console.log('Database is ready');
+    });
+
+    this.on('error', (error: Error) => {
+      console.error('Database error:', error);
+    });
+
+    this.on('versionchange', () => {
+      this.close();
+      window.location.reload();
+    });
   }
 }
 
-const db = new MyDatabase();
-
-db.on('ready', () => {
-  console.log('Database is ready');
-}).on('error', (err) => {
-  console.error('Database error:', err);
-});
-
-db.on('versionchange', () => {
-  db.close();
-  window.location.reload();
-});
-
-export { db }; 
+export const db = new MyDatabase(); 
