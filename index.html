@@ -8,6 +8,15 @@
     <meta name="description" content="電動車充電記錄應用" />
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
     <title>充電記錄</title>
+    <script>
+      // 添加全局標誌
+      window.googleApiLoaded = false;
+      window.onGoogleLoad = function() {
+        window.googleApiLoaded = true;
+        console.log('Google API 加載完成');
+      }
+    </script>
+    <script src="https://accounts.google.com/gsi/client" async defer onload="window.onGoogleLoad()"></script>
   </head>
   <body>
     <div id="root"></div>

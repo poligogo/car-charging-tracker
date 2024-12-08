@@ -4,6 +4,7 @@ import { useChargingStore } from '../stores/chargingStore';
 import type { Vehicle } from '../types';
 import { db } from '../services/db';
 import dayjs from 'dayjs';
+import { GoogleDriveService } from '../services/googleDrive';
 
 const Settings: React.FC = () => {
   const { vehicles, loadVehicles, addVehicle, setDefaultVehicle, deleteVehicle, updateVehicle, records, maintenanceRecords } = useChargingStore();
@@ -114,7 +115,7 @@ const Settings: React.FC = () => {
 
   const handleDeleteVehicle = async (vehicle: Vehicle) => {
     Dialog.confirm({
-      title: '確認��？',
+      title: '確認？',
       content: vehicle.isDefault 
         ? `此車輛為預設車輛，刪除後將需要重新設定預設車輛。確定要刪除 ${vehicle.name} 嗎？`
         : `確定要刪除 ${vehicle.name} 嗎？`,
@@ -158,7 +159,7 @@ const Settings: React.FC = () => {
           <Form.Item name='purchaseDate' label='購買日期' rules={[{ required: true }]}>
             <Input 
               type="date" 
-              placeholder="購買日���"
+              placeholder="購買日"
               defaultValue={dayjs().format('YYYY-MM-DD')}
             />
           </Form.Item>
@@ -336,7 +337,7 @@ const Settings: React.FC = () => {
     duration: '充電時長',
     vendor: '充電店家',
     stationName: '充電站',
-    specification: '充電規格',
+    specification: '��電規格',
     power: '電量',
     unit: '單位',
     pricePerUnit: '每度電價',
@@ -485,7 +486,7 @@ const Settings: React.FC = () => {
           return formatTimeForCSV(value as string);
         }
         
-        // 處理可能包含逗號的字��值
+        // 處理可能包含逗號的字值
         if (typeof value === 'string' && value.includes(',')) {
           return `"${value}"`;
         }
@@ -545,6 +546,94 @@ const Settings: React.FC = () => {
     link.href = URL.createObjectURL(blob);
     link.download = `維修記錄_${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
+  };
+
+  // 添加 Google Drive 匯出函數
+  const exportToGoogleDrive = async () => {
+    try {
+      Toast.show({
+        content: '準備匯出到 Google Drive...',
+        position: 'bottom',
+      });
+
+      const driveService = GoogleDriveService.getInstance();
+      const { status, error } = driveService.getInitializationStatus();
+
+      console.log('[Google Drive 匯出] 檢查 API 狀態:', status);
+
+      if (status === 'failed') {
+        throw new Error(`Google API 初始化失敗: ${error?.message || '未知錯誤'}`);
+      }
+
+      if (status !== 'completed') {
+        console.log('[Google Drive 匯出] API 尚未初始化，嘗試初始化');
+        await driveService.init();
+      }
+
+      // 添加日誌
+      console.log('開始準備 CSV 內容');
+      
+      // 生成 CSV 內容（使用與一般匯出相同的邏輯）
+      const headers = [
+        'date',
+        'currentMileage',
+        'increasedMileage',
+        'startTime',
+        'endTime',
+        'duration',
+        'vendor',
+        'stationName',
+        'specification',
+        'power',
+        'unit',
+        'pricePerUnit',
+        'pricePerMinute',
+        'chargingFee',
+        'parkingFee',
+        'notes',
+      ];
+
+      const headerRow = headers.map(key => CSV_HEADERS[key as keyof typeof CSV_HEADERS]).join(',');
+      const rows = records.map(record =>
+        headers.map(key => {
+          const value = record[key as keyof typeof record];
+          if (key === 'startTime' || key === 'endTime') {
+            return formatTimeForCSV(value as string);
+          }
+          if (typeof value === 'string' && value.includes(',')) {
+            return `"${value}"`;
+          }
+          return value;
+        }).join(',')
+      );
+
+      const csv = [headerRow, ...rows].join('\n');
+      const filename = `充電記錄_${dayjs().format('YYYY-MM-DD')}.csv`;
+
+      console.log('CSV 內容準備完成，開始上傳');
+      
+      // 上傳到 Google Drive
+      try {
+        const fileId = await driveService.uploadToDrive(csv, filename);
+        console.log('上傳成功，文件 ID:', fileId);
+        
+        Toast.show({
+          content: '成功匯出到 Google Drive',
+          position: 'bottom',
+        });
+      } catch (uploadError) {
+        console.error('上傳過程中發生錯誤:', uploadError);
+        throw uploadError;
+      }
+    } catch (error) {
+      console.error('[Google Drive 匯出] 失敗:', error);
+      Toast.show({
+        content: error instanceof Error 
+          ? `匯出失敗: ${error.message}` 
+          : '匯出失敗，請檢查網路連線並重新整理頁面',
+        position: 'bottom',
+      });
+    }
   };
 
   return (
@@ -611,6 +700,16 @@ const Settings: React.FC = () => {
           }
         >
           匯出充電記錄
+        </List.Item>
+
+        <List.Item
+          extra={
+            <Button size='small' color='primary' onClick={exportToGoogleDrive}>
+              匯出到 Drive
+            </Button>
+          }
+        >
+          匯出到 Google Drive
         </List.Item>
 
         <List.Item
