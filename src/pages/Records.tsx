@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Calendar, Picker, Popup, List, TextArea, Dropdown, Selector, Toast, SwipeAction, Dialog } from 'antd-mobile';
+import { Form, Input, Button, Calendar, Popup, List, TextArea, Toast, SwipeAction, Dialog } from 'antd-mobile';
 import { useChargingStore } from '../stores/chargingStore';
 import type { ChargingRecord, ChargingStation } from '../types';
 import dayjs from 'dayjs';
@@ -29,8 +29,7 @@ const Records: React.FC = () => {
   const [unitVisible, setUnitVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingRecord, setEditingRecord] = useState<ChargingRecord | null>(null);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  
+
   const defaultVendors = [
     'TESLA',
     'UPOWER',
@@ -47,7 +46,8 @@ const Records: React.FC = () => {
     try {
       const newStation: Omit<ChargingStation, 'id'> = {
         vendor: newVendor,
-        name: ''
+        name: '',
+        specification: ''
       };
       await addStation(newStation);
       await loadStations();
@@ -377,10 +377,10 @@ const Records: React.FC = () => {
               />
             </Form.Item>
 
-            <Form.Item name="endTime" label="結束時間" rules={[{ required: true }]}>
+            <Form.Item name="endTime" label="結束���間" rules={[{ required: true }]}>
               <Input
                 type="time"
-                placeholder="請選擇��束時間"
+                placeholder="請選擇結束時間"
                 onChange={val => {
                   form.setFieldsValue({ endTime: val });
                   calculateChargingFee();

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { List, Button, Dialog, Form, Input, ImageUploader, Toast, SwipeAction } from 'antd-mobile';
 import { useChargingStore } from '../stores/chargingStore';
 import type { Vehicle } from '../types';
@@ -263,7 +263,7 @@ const Settings: React.FC = () => {
     }
   };
 
-  // 定義欄位映射
+  // 定義欄��映射
   const CSV_HEADERS = {
     date: '日期',
     currentMileage: '當前里程',
@@ -342,7 +342,7 @@ const Settings: React.FC = () => {
 
         // 先清空現有記錄
         await db.records.clear();
-        console.log('已清空現有記錄');
+        console.log('已清空現有��錄');
         
         // 批量添加新記錄
         await db.records.bulkAdd(records);
@@ -442,7 +442,7 @@ const Settings: React.FC = () => {
   // 添加維修記錄的欄位映射
   const MAINTENANCE_CSV_HEADERS = {
     date: '日期',
-    mileage: '里程���',
+    mileage: '里程',
     type: '維修類型',
     location: '維修地點',
     cost: '維修費用',
@@ -488,7 +488,7 @@ const Settings: React.FC = () => {
   const exportToGoogleDrive = async () => {
     try {
       Toast.show({
-        content: '準備匯出到 Google Drive...',
+        content: '��備匯出到 Google Drive...',
         position: 'bottom',
       });
 

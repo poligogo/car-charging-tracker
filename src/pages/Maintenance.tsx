@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { List, Button, Dialog, Form, Input, Toast, SwipeAction, TextArea, Card } from 'antd-mobile';
+import { List, Button, Dialog, Form, Input, Toast, SwipeAction, Card } from 'antd-mobile';
 import { AddOutline, DeleteOutline } from 'antd-mobile-icons';
 import { useChargingStore } from '../stores/chargingStore';
 import type { MaintenanceRecord, MaintenanceItem } from '../types';
