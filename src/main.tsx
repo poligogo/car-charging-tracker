@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom/client'
 import App from './App'
 import './index.css'
 import { GoogleDriveService } from './services/googleDrive'
+import './styles/global.css';
+import './styles/iphone.css';
 
 // 預先初始化 Google API
 const initGoogleApi = async () => {

@@ -397,7 +397,7 @@ const Settings: React.FC = () => {
     reader.readAsText(file);
   };
 
-  // 修改匯出函���
+  // 修改匯出函數
   const exportCSV = () => {
     const headers = [
       'date',
@@ -495,7 +495,7 @@ const Settings: React.FC = () => {
   const exportToGoogleDrive = async () => {
     try {
       Toast.show({
-        content: '準備匯出到 Google Drive...',
+        content: '準備匯出��� Google Drive...',
         position: 'bottom',
       });
 
@@ -587,8 +587,8 @@ const Settings: React.FC = () => {
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 300;  // 設定最大寬度
-          const MAX_HEIGHT = 300; // 設定最大高度
+          const MAX_WIDTH = 800;
+          const MAX_HEIGHT = 800;
           let width = img.width;
           let height = img.height;
 
@@ -607,13 +607,38 @@ const Settings: React.FC = () => {
 
           canvas.width = width;
           canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx?.drawImage(img, 0, 0, width, height);
           
-          // 轉換為 base64，並設定較低的品質
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-          resolve(dataUrl);
+          // 使用 2d context with alpha
+          const ctx = canvas.getContext('2d', {
+            alpha: true,
+            willReadFrequently: true
+          });
+          
+          if (ctx) {
+            // 確保畫布是完全透明的
+            ctx.clearRect(0, 0, width, height);
+            
+            // 設置合成模式以保持透明度
+            ctx.globalCompositeOperation = 'source-over';
+            
+            // 繪製圖片
+            ctx.drawImage(img, 0, 0, width, height);
+
+            // 檢查是否為 PNG 並保持透明度
+            if (file.type === 'image/png') {
+              // 使用 PNG 格式並保持完全品質
+              const dataUrl = canvas.toDataURL('image/png', 1.0);
+              resolve(dataUrl);
+            } else {
+              // 對於非 PNG 圖片，轉換為 JPEG
+              const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+              resolve(dataUrl);
+            }
+          }
         };
+        
+        // 設置圖片的跨域屬性
+        img.crossOrigin = 'anonymous';
         img.src = e.target?.result as string;
       };
       reader.readAsDataURL(file);

@@ -1,0 +1,148 @@
+/* iPhone 15 Pro Max 適配 */
+@media only screen 
+  and (device-width: 430px) 
+  and (device-height: 932px)
+  and (-webkit-device-pixel-ratio: 3),
+  /* iPhone 14/15 Pro Max */
+  only screen 
+  and (device-width: 428px)
+  and (device-height: 926px)
+  and (-webkit-device-pixel-ratio: 3) {
+
+  /* 全局容器樣式 */
+  .page-container {
+    padding: env(safe-area-inset-top) 16px calc(env(safe-area-inset-bottom) + 60px);
+    min-height: 100vh;
+    background-color: var(--background-primary);
+  }
+
+  /* 頁面標題 */
+  h1 {
+    font-size: 24px;
+    margin: 16px 0;
+    color: var(--text-primary);
+  }
+
+  /* 表單容器 */
+  .form-container {
+    padding: 16px;
+    border-radius: 20px;
+    background-color: var(--background-secondary);
+    box-shadow: var(--card-shadow);
+    margin-bottom: 16px;
+  }
+
+  /* 輸入框通用樣式 */
+  .adm-input,
+  .adm-text-area {
+    height: 48px;
+    font-size: 17px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background-color: var(--input-background);
+    border: 1px solid var(--input-border);
+    color: var(--input-text);
+  }
+
+  .adm-text-area {
+    min-height: 100px;
+  }
+
+  /* 表單項目樣式 */
+  .adm-form-item {
+    margin-bottom: 20px;
+  }
+
+  .adm-form-item-label {
+    font-size: 15px;
+    margin-bottom: 8px;
+    color: var(--text-secondary) !important;
+  }
+
+  /* 按鈕樣式 */
+  .adm-button {
+    height: 50px;
+    font-size: 17px;
+    border-radius: 12px;
+    font-weight: 500;
+  }
+
+  /* 列表樣式 */
+  .adm-list-item {
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    background-color: var(--background-secondary);
+    border: 1px solid var(--card-border);
+  }
+
+  /* 彈出層樣式 */
+  .adm-popup {
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    background-color: var(--background-secondary);
+  }
+
+  .adm-popup-body {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* 卡片樣式 */
+  .card {
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 16px;
+    background-color: var(--background-secondary);
+    background: linear-gradient(135deg, var(--background-secondary), var(--background-tertiary));
+    border: 1px solid var(--card-border);
+  }
+
+  /* 底部導航欄 */
+  .adm-tab-bar {
+    padding-bottom: env(safe-area-inset-bottom);
+    background-color: var(--background-secondary);
+    border-top: 1px solid var(--card-border);
+    backdrop-filter: blur(10px);
+  }
+
+  /* 滾動優化 */
+  .scroll-container {
+    -webkit-overflow-scrolling: touch;
+    scroll-padding-top: env(safe-area-inset-top);
+    scroll-padding-bottom: calc(env(safe-area-inset-bottom) + 60px);
+  }
+
+  /* 統計卡片樣式 */
+  .stats-card {
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, var(--primary-50), var(--background-secondary));
+    border: 1px solid var(--primary-100);
+  }
+
+  /* 圖表容器 */
+  .chart-container {
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 16px;
+    height: 300px;
+    background-color: var(--background-secondary);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+  }
+
+  /* 固定底部鈕 */
+  .fixed-bottom-button {
+    position: fixed;
+    bottom: calc(env(safe-area-inset-bottom) + 16px);
+    left: 16px;
+    right: 16px;
+    z-index: 100;
+  }
+
+  /* 動態島適配 */
+  .dynamic-island-padding {
+    padding-top: 59px; /* Dynamic Island 高度 */
+  }
+} 
