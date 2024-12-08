@@ -1,4 +1,4 @@
-import Dexie, { Table, DexieError } from 'dexie';
+import Dexie, { Table } from 'dexie';
 import type { Vehicle, ChargingRecord, ChargingStation, MaintenanceRecord } from '../types';
 
 export class MyDatabase extends Dexie {
@@ -17,23 +17,18 @@ export class MyDatabase extends Dexie {
       maintenance: '++id'
     });
 
-    this.on('ready', () => {
-      console.log('Database is ready');
-    });
-
-    this.on('error', (e: DexieError) => {
-      console.error('Database error:', e);
-    });
-
-    this.on('versionchange', () => {
-      this.close();
-      window.location.reload();
-    });
+    this.open()
+      .then(() => {
+        console.log('Database is ready');
+      })
+      .catch(err => {
+        console.error('Failed to open database:', err);
+      });
   }
 
   handleError(error: Error): void {
     console.error('Database operation failed:', error);
-    if (error instanceof DexieError) {
+    if (error instanceof Dexie.DexieError) {
       switch (error.name) {
         case 'NotFoundError':
           console.error('Data not found');
@@ -53,6 +48,7 @@ export class MyDatabase extends Dexie {
 
 export const db = new MyDatabase();
 
-db.open().catch((err: Error) => {
-  console.error('Failed to open database:', err);
+db.on('versionchange', () => {
+  db.close();
+  window.location.reload();
 }); 
