@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/x-icon" href="/car-charging-tracker/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="description" content="電動車充電記錄應用" />
+    <link rel="apple-touch-icon" href="/car-charging-tracker/icons/icon-192x192.png" />
+    <title>充電記錄</title>
+    <script>
+      // 添加全局標誌
+      window.googleApiLoaded = false;
+      window.onGoogleLoad = function() {
+        window.googleApiLoaded = true;
+        console.log('Google API 加載完成');
+      }
+    </script>
+    <script src="https://accounts.google.com/gsi/client" async defer onload="window.onGoogleLoad()"></script>
+    <script type="module" crossorigin src="/car-charging-tracker/assets/index-9dc2769d.js"></script>
+    <link rel="stylesheet" href="/car-charging-tracker/assets/index-e1db359d.css">
+  </head>
+  <body>
+    <div id="root"></div>
+    
+  </body>
+</html>
