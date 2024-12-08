@@ -1,0 +1,112 @@
+:root {
+  /* 主要背景色 */
+  --background-primary: #1a1a1a;
+  --background-secondary: #2d2d2d;
+  --background-tertiary: #404040;
+  
+  /* 文字顏色 */
+  --text-primary: #ffffff;
+  --text-secondary: #b3b3b3;
+  --text-tertiary: #808080;
+  
+  /* 強調色 */
+  --accent-primary: #4a90e2;    /* 藍色 */
+  --accent-secondary: #50c878;  /* 綠色 */
+  --accent-danger: #ff6b6b;     /* 紅色 */
+  
+  /* 卡片和容器 */
+  --card-background: #2d2d2d;
+  --card-border: #404040;
+  
+  /* 輸入框 */
+  --input-background: #404040;
+  --input-border: #575757;
+  --input-text: #ffffff;
+  
+  /* 按鈕 */
+  --button-primary: #4a90e2;
+  --button-primary-text: #ffffff;
+  --button-secondary: #404040;
+  --button-secondary-text: #ffffff;
+}
+
+/* 全局樣式 */
+body {
+  background-color: var(--background-primary);
+  color: var(--text-primary);
+}
+
+/* 卡片樣式 */
+.adm-card {
+  background-color: var(--card-background);
+  border: 1px solid var(--card-border);
+}
+
+/* 列表樣式 */
+.adm-list-item {
+  background-color: var(--card-background);
+  color: var(--text-primary);
+}
+
+/* 輸入框樣式 */
+.adm-input {
+  background-color: var(--input-background);
+  border-color: var(--input-border);
+  color: var(--input-text);
+}
+
+/* 按鈕樣式 */
+.adm-button {
+  background-color: var(--button-primary);
+  color: var(--button-primary-text);
+}
+
+.adm-button--secondary {
+  background-color: var(--button-secondary);
+  color: var(--button-secondary-text);
+}
+
+/* 統計卡片樣式 */
+.stats-card {
+  background-color: var(--card-background);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.stats-card-title {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.stats-card-value {
+  color: var(--text-primary);
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* 表單標籤樣式 */
+.adm-form-item-label {
+  color: var(--text-secondary) !important;
+}
+
+/* 下拉選單樣式 */
+.dropdown-content {
+  background-color: var(--card-background);
+  border: 1px solid var(--card-border);
+}
+
+/* TabBar 樣式 */
+.adm-tab-bar {
+  background-color: var(--background-secondary);
+}
+
+.adm-tab-bar-item {
+  color: var(--text-secondary);
+}
+
+.adm-tab-bar-item-active {
+  color: var(--accent-primary);
+} 

@@ -3,6 +3,7 @@ import { useChargingStore } from '../stores/chargingStore';
 import { Collapse } from 'antd-mobile';
 import { RightOutline } from 'antd-mobile-icons';
 import dayjs from 'dayjs';
+import './Home.css';
 
 const Home: React.FC = () => {
   const { currentVehicle, monthlyStats, totalStats, calculateMonthlyStats, records } = useChargingStore();
@@ -49,7 +50,7 @@ const Home: React.FC = () => {
   }, [monthlyStats]);
 
   return (
-    <div className="tesla-home">
+    <div className="home-page">
       <div className="vehicle-display">
         <div className="vehicle-image-container">
           {currentVehicle?.imageUrl && (

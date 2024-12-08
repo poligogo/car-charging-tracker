@@ -1,0 +1,94 @@
+.home-page {
+  padding: 16px;
+  background-color: var(--background-primary);
+  min-height: calc(100vh - 50px);
+}
+
+.vehicle-display {
+  background-color: var(--card-background);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.vehicle-image-container {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.vehicle-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vehicle-info {
+  text-align: center;
+}
+
+.vehicle-name {
+  color: var(--text-primary);
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.days-with-car {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.stats-container {
+  margin-top: 24px;
+}
+
+.stats-collapse {
+  background-color: var(--card-background);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.adm-collapse-panel-title {
+  color: var(--text-primary) !important;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding: 16px;
+}
+
+.stats-item {
+  text-align: center;
+  padding: 12px;
+  background-color: var(--background-tertiary);
+  border-radius: 8px;
+}
+
+.stats-value {
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.stats-label {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+:global(.adm-collapse) {
+  background-color: transparent !important;
+}
+
+:global(.adm-collapse-panel-header) {
+  background-color: var(--card-background) !important;
+}
+
+:global(.adm-collapse-panel-content) {
+  background-color: var(--card-background) !important;
+} 

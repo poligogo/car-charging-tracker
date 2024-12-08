@@ -377,7 +377,7 @@ const Records: React.FC = () => {
               />
             </Form.Item>
 
-            <Form.Item name="endTime" label="結束���間" rules={[{ required: true }]}>
+            <Form.Item name="endTime" label="結束時間" rules={[{ required: true }]}>
               <Input
                 type="time"
                 placeholder="請選擇結束時間"
