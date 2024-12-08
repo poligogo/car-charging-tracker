@@ -78,7 +78,7 @@ export const useChargingStore = create<ChargingState>((set, get) => ({
         id: Date.now().toString()
       };
 
-      const id = await db.records.add(newRecord);
+      await db.records.add(newRecord);
       
       // 更新 state
       set(state => ({
@@ -129,7 +129,7 @@ export const useChargingStore = create<ChargingState>((set, get) => ({
       console.log('Loaded records:', records.length);
       set({ records });
 
-      // �算總計統計
+      // 算總計統計
       const totalCost = records.reduce((sum, r) => sum + (r.chargingFee || 0) + (r.parkingFee || 0), 0);
       const totalPower = records.reduce((sum, r) => sum + (r.power || 0), 0);
       const totalStats = {
@@ -271,18 +271,12 @@ export const useChargingStore = create<ChargingState>((set, get) => ({
     }
   },
 
-  deleteVehicle: async (id: string) => {
-    try {
-      await db.vehicles.delete(id);
-      set(state => ({
-        vehicles: state.vehicles.filter(v => v.id !== id),
-        currentVehicle: state.currentVehicle?.id === id ? null : state.currentVehicle
-      }));
-      return true;
-    } catch (error) {
-      console.error('Delete vehicle failed:', error);
-      throw error;
-    }
+  deleteVehicle: async (id: string): Promise<void> => {
+    await db.vehicles.delete(id);
+    set(state => ({
+      vehicles: state.vehicles.filter(v => v.id !== id),
+      currentVehicle: state.currentVehicle?.id === id ? null : state.currentVehicle
+    }));
   },
 
   updateVehicle: async (id: string, vehicle: Partial<Vehicle>) => {

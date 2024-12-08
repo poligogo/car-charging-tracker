@@ -216,9 +216,8 @@ const Maintenance: React.FC = () => {
                 <Button
                   size='small'
                   onClick={addItem}
-                  icon={<AddOutline />}
                 >
-                  新增項目
+                  <AddOutline /> 新增項目
                 </Button>
               </div>
               
@@ -254,8 +253,9 @@ const Maintenance: React.FC = () => {
                         fill='none'
                         color='danger'
                         onClick={() => removeItem(item.id)}
-                        icon={<DeleteOutline />}
-                      />
+                      >
+                        <DeleteOutline />
+                      </Button>
                     </div>
                   </div>
                 </Card>

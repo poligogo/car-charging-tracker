@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Calendar, Picker, Popup, List, TextArea, Dropdown, Selector, Toast, SwipeAction, Dialog } from 'antd-mobile';
 import { useChargingStore } from '../stores/chargingStore';
-import type { ChargingRecord } from '../types';
+import type { ChargingRecord, ChargingStation } from '../types';
 import dayjs from 'dayjs';
 
 interface FormValues extends Omit<ChargingRecord, 'id' | 'startTime' | 'endTime'> {
@@ -29,6 +29,7 @@ const Records: React.FC = () => {
   const [unitVisible, setUnitVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingRecord, setEditingRecord] = useState<ChargingRecord | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   
   const defaultVendors = [
     'TESLA',
@@ -44,11 +45,11 @@ const Records: React.FC = () => {
 
   const handleAddVendor = async (newVendor: string) => {
     try {
-      await addStation({
-        id: Date.now().toString(),
+      const newStation: Omit<ChargingStation, 'id'> = {
         vendor: newVendor,
         name: ''
-      });
+      };
+      await addStation(newStation);
       await loadStations();
       setCustomVendor('');
       Toast.show({
@@ -169,43 +170,21 @@ const Records: React.FC = () => {
     }
   };
 
-  const generateTimeOptions = () => {
-    const hours = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'));
-    const minutes = Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0'));
-    return [hours, minutes];
-  };
-
-  const handleSelectDate = (val: Date) => {
-    form.setFieldsValue({ 
-      date: dayjs(val).format('YYYY-MM-DD') 
-    });
-    setShowDatePicker(false);
-  };
-
-  const timeColumns = [
-    {
-      key: 'hour',
-      values: Array.from({ length: 24 }).map((_, i) => ({
-        label: i.toString().padStart(2, '0'),
-        value: i.toString().padStart(2, '0')
-      }))
-    },
-    {
-      key: 'minute',
-      values: Array.from({ length: 60 }).map((_, i) => ({
-        label: i.toString().padStart(2, '0'),
-        value: i.toString().padStart(2, '0')
-      }))
+  const handleSelectDate = (val: Date | null) => {
+    if (val) {
+      form.setFieldsValue({ 
+        date: dayjs(val).format('YYYY-MM-DD') 
+      });
+      setShowDatePicker(false);
     }
-  ];
+  };
 
   const showEditForm = (record: ChargingRecord) => {
     setEditingRecord(record);
     form.setFieldsValue({
       ...record,
       startTime: dayjs(record.startTime).format('HH:mm'),
-      endTime: dayjs(record.endTime).format('HH:mm'),
-      imageUrl: record.imageUrl ? [{ url: record.imageUrl }] : []
+      endTime: dayjs(record.endTime).format('HH:mm')
     });
     setShowForm(true);
   };
@@ -401,7 +380,7 @@ const Records: React.FC = () => {
             <Form.Item name="endTime" label="結束時間" rules={[{ required: true }]}>
               <Input
                 type="time"
-                placeholder="請選擇結束時間"
+                placeholder="請選擇��束時間"
                 onChange={val => {
                   form.setFieldsValue({ endTime: val });
                   calculateChargingFee();

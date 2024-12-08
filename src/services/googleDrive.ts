@@ -3,6 +3,13 @@ interface GoogleAuthResponse {
   error?: string;
 }
 
+interface GoogleTokenClient {
+  requestAccessToken(config: {
+    callback: (response: GoogleAuthResponse) => void;
+    prompt?: string;
+  }): void;
+}
+
 declare global {
   interface Window {
     google: {
@@ -12,16 +19,11 @@ declare global {
             client_id: string;
             scope: string;
             callback: (response: GoogleAuthResponse) => void;
-            prompt?: string;
-          }): {
-            requestAccessToken(config?: {
-              callback?: (response: GoogleAuthResponse) => void;
-              prompt?: string;
-            }): void;
-          };
+          }): GoogleTokenClient;
         };
       };
     };
+    googleApiLoaded: boolean;
   }
 }
 
@@ -33,7 +35,7 @@ if (!GOOGLE_CLIENT_ID) {
 
 export class GoogleDriveService {
   private static instance: GoogleDriveService;
-  private tokenClient: google.accounts.oauth2.TokenClient | null = null;
+  private tokenClient: GoogleTokenClient | null = null;
   private initializationStatus: 'not_started' | 'in_progress' | 'completed' | 'failed' = 'not_started';
   private initError: Error | null = null;
 

@@ -11,11 +11,12 @@ export interface ChargingRecord {
   specification: string;
   power: number;
   unit: string;
-  pricePerUnit: number;
-  pricePerMinute: number;
+  pricePerUnit?: number;
+  pricePerMinute?: number;
   chargingFee: number;
-  parkingFee: number;
+  parkingFee?: number;
   notes?: string;
+  imageUrl?: string;
 }
 
 export interface Vehicle {

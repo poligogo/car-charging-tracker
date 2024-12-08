@@ -10,7 +10,6 @@ const Settings: React.FC = () => {
   const { vehicles, loadVehicles, addVehicle, setDefaultVehicle, deleteVehicle, updateVehicle, records, maintenanceRecords } = useChargingStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [form] = Form.useForm();
-  const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const editingVehicleRef = useRef<Vehicle | null>(null);
 
   useEffect(() => {
@@ -27,75 +26,16 @@ const Settings: React.FC = () => {
         return;
       }
 
-      const imageUrl = Array.isArray(values.imageUrl) && values.imageUrl.length > 0
-        ? values.imageUrl[0].url 
-        : null;
-
-      // 如果是第一台車，先詢問是否設為預設車輛
-      if (vehicles.length === 0) {
-        return new Promise((resolve) => {
-          Dialog.confirm({
-            title: '設定預設車量確認',
-            content: '是否要將此車輛設定為預設車輛？',
-            onConfirm: async () => {
-              try {
-                await addVehicle({
-                  name: values.name,
-                  imageUrl: imageUrl,
-                  purchaseDate: values.purchaseDate || dayjs().format('YYYY-MM-DD'),
-                  isDefault: true
-                });
-                Toast.show({
-                  content: '新增車輛成功',
-                  position: 'bottom',
-                });
-                form.resetFields();
-                Dialog.clear();
-                resolve(true);
-              } catch (error) {
-                console.error('Add vehicle failed:', error);
-                Toast.show({
-                  content: '新增車輛失敗',
-                  position: 'bottom',
-                });
-                resolve(false);
-              }
-            },
-            onCancel: async () => {
-              try {
-                await addVehicle({
-                  name: values.name,
-                  imageUrl: imageUrl,
-                  purchaseDate: values.purchaseDate || dayjs().format('YYYY-MM-DD'),
-                  isDefault: false
-                });
-                Toast.show({
-                  content: '新增車輛成功',
-                  position: 'bottom',
-                });
-                form.resetFields();
-                Dialog.clear();
-                resolve(true);
-              } catch (error) {
-                console.error('Add vehicle failed:', error);
-                Toast.show({
-                  content: '新增車輛失敗',
-                  position: 'bottom',
-                });
-                resolve(false);
-              }
-            },
-          });
-        });
-      }
-
-      // 如果不是第一台車，直接新增
-      await addVehicle({
+      const vehicleData: Omit<Vehicle, 'id'> = {
         name: values.name,
-        imageUrl: imageUrl,
+        imageUrl: Array.isArray(values.imageUrl) && values.imageUrl.length > 0
+          ? values.imageUrl[0].url 
+          : undefined,
         purchaseDate: values.purchaseDate || dayjs().format('YYYY-MM-DD'),
         isDefault: false
-      });
+      };
+
+      await addVehicle(vehicleData);
 
       Toast.show({
         content: '新增車輛成功',
@@ -200,7 +140,6 @@ const Settings: React.FC = () => {
   const showEditVehicleDialog = (vehicle: Vehicle) => {
     console.log('Opening edit dialog for vehicle:', vehicle);
     
-    setEditingVehicle(vehicle);
     editingVehicleRef.current = vehicle;
     
     form.setFieldsValue({
@@ -258,8 +197,6 @@ const Settings: React.FC = () => {
       closeOnAction: true,
       closeOnMaskClick: true,
       onClose: () => {
-        setEditingVehicle(null);
-        editingVehicleRef.current = null;
         form.resetFields();
       },
     });
@@ -316,7 +253,6 @@ const Settings: React.FC = () => {
       
       Dialog.clear();
       form.resetFields();
-      setEditingVehicle(null);
       editingVehicleRef.current = null;
     } catch (error) {
       console.error('Edit vehicle failed:', error);
@@ -337,7 +273,7 @@ const Settings: React.FC = () => {
     duration: '充電時長',
     vendor: '充電店家',
     stationName: '充電站',
-    specification: '��電規格',
+    specification: '充電規格',
     power: '電量',
     unit: '單位',
     pricePerUnit: '每度電價',
@@ -506,7 +442,7 @@ const Settings: React.FC = () => {
   // 添加維修記錄的欄位映射
   const MAINTENANCE_CSV_HEADERS = {
     date: '日期',
-    mileage: '里程數',
+    mileage: '里程���',
     type: '維修類型',
     location: '維修地點',
     cost: '維修費用',
