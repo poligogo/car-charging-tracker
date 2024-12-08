@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useChargingStore } from '../stores/chargingStore';
 import * as echarts from 'echarts';
 import dayjs from 'dayjs';
+import { Empty } from 'antd-mobile';
 import './Statistics.css';
 
 interface MonthlyData {
@@ -23,8 +24,16 @@ const Statistics: React.FC = () => {
   const { records } = useChargingStore();
   const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);
   const [stationStats, setStationStats] = useState<StationStats[]>([]);
+  const [hasData, setHasData] = useState(false);
 
   useEffect(() => {
+    // 檢查是否有數據
+    if (records.length === 0) {
+      setHasData(false);
+      return;
+    }
+
+    setHasData(true);
     // 計算月度數據
     const monthlyStats = records.reduce((acc, record) => {
       const month = dayjs(record.date).format('YYYY-MM');
@@ -196,6 +205,24 @@ const Statistics: React.FC = () => {
       stationChart.dispose();
     };
   }, [monthlyData, stationStats]);
+
+  if (!hasData) {
+    return (
+      <div className="statistics-page">
+        <div className="empty-state">
+          <Empty
+            imageStyle={{ width: 128 }}
+            description={
+              <div className="empty-description">
+                <p>尚無充電記錄</p>
+                <p className="empty-hint">新增充電記錄後即可查看統計資訊</p>
+              </div>
+            }
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="statistics-page">
