@@ -61,19 +61,74 @@ const Records: React.FC = () => {
     }
   };
 
+  const calculateDuration = (startTime: string, endTime: string): number => {
+    const start = dayjs(`2000-01-01 ${startTime}`);
+    let end = dayjs(`2000-01-01 ${endTime}`);
+    
+    if (end.isBefore(start)) {
+      end = end.add(1, 'day');
+    }
+    
+    return end.diff(start, 'minute');
+  };
+
   const calculateFee = () => {
     const values = form.getFieldsValue();
     const { power, pricePerUnit, startTime, endTime, pricePerMinute } = values;
 
-    if (pricePerUnit && power) {
-      const fee = power * pricePerUnit;
-      form.setFieldValue('chargingFee', fee.toFixed(2));
-    } else if (pricePerMinute && startTime && endTime) {
-      const start = dayjs(`2000-01-01 ${startTime}`);
-      const end = dayjs(`2000-01-01 ${endTime}`);
-      const minutes = end.diff(start, 'minute');
-      const fee = minutes * pricePerMinute;
-      form.setFieldValue('chargingFee', fee.toFixed(2));
+    try {
+      let fee = 0;
+      let duration = 0;
+
+      if (startTime && endTime) {
+        duration = calculateDuration(startTime, endTime);
+        form.setFieldValue('duration', duration);
+      }
+
+      if (pricePerUnit && power) {
+        fee = power * pricePerUnit;
+      } else if (pricePerMinute && duration) {
+        fee = duration * pricePerMinute;
+      }
+
+      if (fee > 0) {
+        const roundedFee = Math.round(fee * 100) / 100;
+        form.setFieldValue('chargingFee', roundedFee.toFixed(2));
+
+        if (power > 0) {
+          const avgPrice = roundedFee / power;
+          form.setFieldValue('avgPrice', avgPrice.toFixed(3));
+        }
+      }
+
+      const currentMileage = Number(values.currentMileage);
+      const lastRecord = useChargingStore.getState().records[0];
+      if (lastRecord && currentMileage) {
+        const increasedMileage = currentMileage - (lastRecord.currentMileage || 0);
+        if (increasedMileage > 0) {
+          form.setFieldValue('increasedMileage', increasedMileage);
+          
+          if (fee > 0) {
+            const costPerKm = roundedFee / increasedMileage;
+            form.setFieldValue('costPerKm', costPerKm.toFixed(2));
+          }
+        }
+      }
+    } catch (error) {
+      console.error('計算費用時發生錯誤:', error);
+      Toast.show({
+        content: '計算費用時發生錯誤',
+        position: 'bottom',
+      });
+    }
+  };
+
+  const handleFieldChange = (field: string, value: any) => {
+    form.setFieldValue(field, value);
+    
+    const triggerFields = ['power', 'pricePerUnit', 'startTime', 'endTime', 'pricePerMinute', 'currentMileage'];
+    if (triggerFields.includes(field)) {
+      calculateFee();
     }
   };
 
@@ -116,7 +171,7 @@ const Records: React.FC = () => {
 
             <Form.Item 
               name="currentMileage" 
-              label="當前里程 (km)" 
+              label="當���里程 (km)" 
               rules={[{ required: true }]}
             >
               <Input type="number" placeholder="請輸入當前里程" />
@@ -139,8 +194,24 @@ const Records: React.FC = () => {
               <Input 
                 type="number" 
                 placeholder="請輸入充電量" 
-                onChange={calculateFee}
+                onChange={value => handleFieldChange('power', value)}
               />
+            </Form.Item>
+
+            <Form.Item 
+              name="avgPrice" 
+              label="平均單價 (元/kWh)"
+              disabled
+            >
+              <Input readOnly />
+            </Form.Item>
+
+            <Form.Item 
+              name="costPerKm" 
+              label="每公里成本 (元/km)"
+              disabled
+            >
+              <Input readOnly />
             </Form.Item>
 
             <Form.Header>充電站資訊</Form.Header>

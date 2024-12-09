@@ -35,20 +35,37 @@ const ChargingHistory = () => {
     return `${hours}小時 ${mins}分鐘`;
   };
 
-  // 篩選記錄
-  const filteredRecords = records.filter(record => {
-    const matchesDate = dayjs(record.date).format('YYYY') === selectedYear && 
-                       dayjs(record.date).format('MM') === selectedMonth;
-    
-    if (!searchKeyword) return matchesDate;
+  // 篩選記錄並排序
+  const filteredRecords = [...records]  // 創建一個新陣列以避免修改原始數據
+    .sort((a, b) => {
+      // 首先比較日期
+      const dateA = dayjs(a.date);
+      const dateB = dayjs(b.date);
+      
+      // 如果日期相同，比較時間
+      if (dateA.isSame(dateB, 'day')) {
+        const timeA = dayjs(`${a.date} ${a.startTime}`);
+        const timeB = dayjs(`${b.date} ${b.startTime}`);
+        return timeB.valueOf() - timeA.valueOf();
+      }
+      
+      // 日期不同時，直接比較日期（降序）
+      return dateB.valueOf() - dateA.valueOf();
+    })
+    .filter(record => {
+      const recordDate = dayjs(record.date);
+      const matchesDate = recordDate.format('YYYY') === selectedYear && 
+                         recordDate.format('MM') === selectedMonth;
+      
+      if (!searchKeyword) return matchesDate;
 
-    const keyword = searchKeyword.toLowerCase();
-    return matchesDate && (
-      record.stationName.toLowerCase().includes(keyword) ||
-      record.vendor?.toLowerCase().includes(keyword) ||
-      record.note?.toLowerCase().includes(keyword)
-    );
-  });
+      const keyword = searchKeyword.toLowerCase();
+      return matchesDate && (
+        record.stationName.toLowerCase().includes(keyword) ||
+        record.vendor?.toLowerCase().includes(keyword) ||
+        record.note?.toLowerCase().includes(keyword)
+      );
+    });
 
   // 計算分頁
   const startIndex = (currentPage - 1) * pageSize;
