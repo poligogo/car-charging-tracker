@@ -79,6 +79,7 @@ const Records: React.FC = () => {
     try {
       let fee = 0;
       let duration = 0;
+      let roundedFee = 0;
 
       if (startTime && endTime) {
         duration = calculateDuration(startTime, endTime);
@@ -92,7 +93,7 @@ const Records: React.FC = () => {
       }
 
       if (fee > 0) {
-        const roundedFee = Math.round(fee * 100) / 100;
+        roundedFee = Math.round(fee * 100) / 100;
         form.setFieldValue('chargingFee', roundedFee.toFixed(2));
 
         if (power > 0) {
@@ -108,7 +109,7 @@ const Records: React.FC = () => {
         if (increasedMileage > 0) {
           form.setFieldValue('increasedMileage', increasedMileage);
           
-          if (fee > 0) {
+          if (roundedFee > 0) {
             const costPerKm = roundedFee / increasedMileage;
             form.setFieldValue('costPerKm', costPerKm.toFixed(2));
           }
@@ -171,7 +172,7 @@ const Records: React.FC = () => {
 
             <Form.Item 
               name="currentMileage" 
-              label="當���里程 (km)" 
+              label="當前里程 (km)" 
               rules={[{ required: true }]}
             >
               <Input type="number" placeholder="請輸入當前里程" />
@@ -286,4 +287,4 @@ const Records: React.FC = () => {
   );
 };
 
-export default Records; 
+export default Records;
