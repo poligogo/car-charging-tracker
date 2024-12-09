@@ -1,0 +1,229 @@
+.records-page {
+  padding: 16px;
+  background-color: var(--background-primary);
+  min-height: calc(100vh - 50px);
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* 充電記錄卡片 */
+.record-card {
+  background: linear-gradient(145deg, var(--card-background), var(--background-tertiary));
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.record-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+/* 記錄卡片頭部 */
+.record-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.record-date {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.record-station {
+  font-size: 14px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 記錄內容網格 */
+.record-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.record-item {
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.record-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-2px);
+}
+
+.record-value {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--accent-primary);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.record-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* 記錄卡片底部 */
+.record-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--card-border);
+}
+
+/* 充電規格標籤 */
+.spec-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  background: rgba(74, 144, 226, 0.1);
+  border-radius: 20px;
+  font-size: 13px;
+  color: var(--accent-primary);
+}
+
+.parking-fee {
+  font-size: 14px;
+  color: var(--text-secondary);
+  padding: 4px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+}
+
+/* 新增記錄按鈕 */
+.add-record-button {
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom) + 70px);
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  box-shadow: 0 4px 20px rgba(74, 144, 226, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  transition: all 0.3s ease;
+  z-index: 100;
+}
+
+.add-record-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 25px rgba(74, 144, 226, 0.4);
+}
+
+/* 空狀態樣式 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 200px);
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.7;
+}
+
+.empty-text {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .record-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .record-value {
+    font-size: 16px;
+  }
+
+  .add-record-button {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+  }
+}
+
+/* 月份標籤頁樣式 */
+.month-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: var(--background-primary);
+  margin-bottom: 16px;
+}
+
+.records-container {
+  padding-bottom: 80px; /* 為底部按鈕留出空間 */
+}
+
+.month-section {
+  margin-bottom: 24px;
+}
+
+.month-header {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding: 8px 16px;
+  margin-bottom: 12px;
+  background: linear-gradient(90deg, var(--accent-primary), transparent);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* 適配深色模式 */
+@media (prefers-color-scheme: dark) {
+  .month-header {
+    opacity: 0.8;
+  }
+}
+
+/* 響應式調整 */
+@media (min-width: 768px) {
+  .records-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .month-tabs {
+    max-width: 800px;
+    margin: 0 auto 16px;
+  }
+} 

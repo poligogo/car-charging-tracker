@@ -1,22 +1,15 @@
 export interface ChargingRecord {
   id: string;
   date: string;
-  currentMileage: number;
-  increasedMileage: number;
   startTime: string;
   endTime: string;
-  duration: number;
   vendor: string;
   stationName: string;
   specification: string;
   power: number;
-  unit: string;
-  pricePerUnit?: number;
-  pricePerMinute?: number;
+  duration: number;
   chargingFee: number;
   parkingFee?: number;
-  notes?: string;
-  imageUrl?: string;
 }
 
 export interface Vehicle {

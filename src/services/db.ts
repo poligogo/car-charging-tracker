@@ -1,28 +1,31 @@
 import Dexie, { Table } from 'dexie';
-import type { Vehicle, ChargingRecord, ChargingStation, MaintenanceRecord } from '../types';
+import type { ChargingRecord, Vehicle, ChargingStation, MaintenanceRecord } from '../types';
 
 export class MyDatabase extends Dexie {
-  vehicles!: Table<Vehicle>;
   records!: Table<ChargingRecord>;
   stations!: Table<ChargingStation>;
+  vehicles!: Table<Vehicle>;
   maintenance!: Table<MaintenanceRecord>;
 
   constructor() {
-    super('MyDatabase');
+    super('ChargingDatabase');
     
-    this.version(2).stores({
-      vehicles: '++id',
-      records: '++id, date',
-      stations: '++id',
-      maintenance: '++id'
+    this.version(1).stores({
+      records: 'id, date, startTime, endTime',
+      stations: 'id, name',
+      vehicles: 'id, name, isDefault',
+      maintenance: 'id, date, type'
+    }).upgrade(tx => {
+      console.log('Upgrading database schema...');
     });
 
     this.open()
       .then(() => {
         console.log('Database is ready');
       })
-      .catch(err => {
-        console.error('Failed to open database:', err);
+      .catch(error => {
+        console.error('Database error:', error);
+        this.handleError(error);
       });
   }
 
@@ -39,8 +42,11 @@ export class MyDatabase extends Dexie {
         case 'QuotaExceededError':
           console.error('Storage quota exceeded');
           break;
+        case 'SchemaError':
+          console.error('Schema error:', error.message);
+          break;
         default:
-          console.error('Unknown database error');
+          console.error('Unknown database error:', error.name);
       }
     }
   }
@@ -48,7 +54,6 @@ export class MyDatabase extends Dexie {
 
 export const db = new MyDatabase();
 
-db.on('versionchange', () => {
+window.addEventListener('unload', () => {
   db.close();
-  window.location.reload();
 }); 

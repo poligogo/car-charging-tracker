@@ -126,27 +126,36 @@ export const useChargingStore = create<ChargingState>((set, get) => ({
   loadRecords: async () => {
     try {
       const records = await db.records.toArray();
-      console.log('Loaded records:', records.length);
-      set({ records });
+      
+      // 按日期和時間排序
+      const sortedRecords = records.sort((a, b) => {
+        const dateTimeA = dayjs(`${a.date} ${a.startTime}`);
+        const dateTimeB = dayjs(`${b.date} ${b.startTime}`);
+        return dateTimeB.valueOf() - dateTimeA.valueOf();
+      });
 
-      // 算總計統計
-      const totalCost = records.reduce((sum, r) => sum + (r.chargingFee || 0) + (r.parkingFee || 0), 0);
-      const totalPower = records.reduce((sum, r) => sum + (r.power || 0), 0);
-      const totalStats = {
-        totalCost: Math.round(totalCost * 100) / 100,
-        totalPower: totalPower,
-        chargingCount: records.length,
-        averagePrice: totalPower ? Number((totalCost / totalPower).toFixed(3)) : 0
-      };
-      set({ totalStats });
+      // 更新 store 中的記錄
+      set({ records: sortedRecords });
 
-      // 使用最新記錄的月份
-      const sortedRecords = [...records].sort((a, b) => 
-        dayjs(b.date).valueOf() - dayjs(a.date).valueOf()
-      );
-      const latestMonth = dayjs(sortedRecords[0]?.date || '').format('YYYY-MM');
-      console.log('Latest month:', latestMonth);
-      await get().calculateMonthlyStats(latestMonth);
+      // 計算總計統計
+      const totalCost = records.reduce((sum, r) => sum + r.chargingFee + (r.parkingFee || 0), 0);
+      const totalPower = records.reduce((sum, r) => sum + r.power, 0);
+      
+      set({
+        totalStats: {
+          totalCost: Math.round(totalCost * 100) / 100,
+          totalPower,
+          chargingCount: records.length,
+          averagePrice: totalPower ? Number((totalCost / totalPower).toFixed(3)) : 0
+        }
+      });
+
+      // 如果有記錄，計算最新月份的統計
+      if (sortedRecords.length > 0) {
+        const latestMonth = dayjs(sortedRecords[0].date).format('YYYY-MM');
+        await get().calculateMonthlyStats(latestMonth);
+      }
+
     } catch (error) {
       console.error('Failed to load records:', error);
       throw error;
