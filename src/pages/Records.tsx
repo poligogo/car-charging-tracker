@@ -1,172 +1,59 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Calendar, Popup, List, TextArea, Toast, SwipeAction, Dialog } from 'antd-mobile';
+import { Button, Popup, Form, Toast, Input, TextArea } from 'antd-mobile';
 import { useChargingStore } from '../stores/chargingStore';
-import type { ChargingRecord, ChargingStation } from '../types';
+import type { ChargingRecord } from '../types';
 import dayjs from 'dayjs';
 import ChargingHistory from '../components/ChargingHistory';
-
-interface FormValues {
-  date: string;
-  startTime: string | Date;
-  endTime: string | Date;
-  power: number;
-  chargingFee: number;
-  parkingFee?: number;
-  stationName: string;
-  currentMileage?: number;
-  vendor?: string;
-  specification?: string;
-  unit?: string;
-  pricePerUnit?: number;
-  pricePerMinute?: number;
-  note?: string;
-}
-
-const CHARGING_SPECS = [
-  { label: '交流慢充 - J1772', value: 'J1772' },
-  { label: '交流慢充 - Type 2', value: 'Type 2' },
-  { label: '直流快充 - TPC (NACS)', value: 'TPC' },
-  { label: '直流快充 - CCS2', value: 'CCS2' },
-  { label: '直流快充 - CCS1', value: 'CCS1' },
-];
+import './Records.css';
 
 const Records: React.FC = () => {
-  const { records, stations, addRecord, loadRecords, loadStations, addStation, updateRecord, deleteRecord } = useChargingStore();
+  const { addRecord, loadRecords } = useChargingStore();
   const [showForm, setShowForm] = useState(false);
   const [form] = Form.useForm();
-  const [lastMileage, setLastMileage] = useState(0);
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [customVendor, setCustomVendor] = useState('');
-  const [vendorVisible, setVendorVisible] = useState(false);
-  const [specVisible, setSpecVisible] = useState(false);
-  const [unitVisible, setUnitVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [editingRecord, setEditingRecord] = useState<ChargingRecord | null>(null);
-
-  const defaultVendors = [
-    'TESLA',
-    'UPOWER',
-    '特爾',
-    'EVOASIS',
-    'EVALUE',
-    'USPACE',
-    'YES!來電',
-    'DARA',
-    'iCharging'
-  ];
-
-  const handleAddVendor = async (newVendor: string) => {
-    try {
-      const newStation: Omit<ChargingStation, 'id'> = {
-        vendor: newVendor,
-        name: '',
-        address: '',
-        pricePerUnit: 0
-      };
-      await addStation(newStation);
-      await loadStations();
-      setCustomVendor('');
-      Toast.show({
-        content: '新增店家成功',
-        position: 'bottom',
-      });
-    } catch (error) {
-      Toast.show({
-        content: '新增店家失敗',
-        position: 'bottom',
-      });
-    }
-  };
-
-  const getAvailableVendors = () => {
-    const existingVendors = new Set(stations.map(s => s.vendor));
-    const allVendors = new Set([...defaultVendors, ...Array.from(existingVendors)]);
-    return Array.from(allVendors).sort();
-  };
 
   useEffect(() => {
     loadRecords();
-    loadStations();
-    if (records.length > 0) {
-      const lastRecord = records[records.length - 1];
-      const mileage = lastRecord.currentMileage;
-      if (typeof mileage === 'number') {
-        setLastMileage(mileage);
-      } else {
-        setLastMileage(0);
-      }
-    }
   }, []);
 
-  const onFinish = async (values: FormValues) => {
+  const onFinish = async (values: Partial<ChargingRecord>) => {
     if (isSubmitting) return;
     
     try {
       setIsSubmitting(true);
-      const today = dayjs().format('YYYY-MM-DD');
-      const startTime = dayjs(`${today} ${values.startTime}`).toISOString();
-      const endTime = dayjs(`${today} ${values.endTime}`).toISOString();
-      
-      let duration: number;
-      if (dayjs(endTime).isBefore(dayjs(startTime))) {
-        const nextDay = dayjs(`${today} ${values.endTime}`).add(1, 'day');
-        duration = nextDay.diff(dayjs(`${today} ${values.startTime}`), 'minute');
-      } else {
-        duration = dayjs(endTime).diff(dayjs(startTime), 'minute');
-      }
-
-      const numericValues = {
-        currentMileage: Number(values.currentMileage || 0),
-        power: Number(values.power || 0),
-        pricePerUnit: Number(values.pricePerUnit || 0),
-        pricePerMinute: Number(values.pricePerMinute || 0),
-        chargingFee: Number(values.chargingFee || 0),
-        parkingFee: Number(values.parkingFee || 0),
-      };
-
-      const increasedMileage = numericValues.currentMileage - lastMileage;
       
       const record: Omit<ChargingRecord, 'id'> = {
         date: dayjs().format('YYYY-MM-DD'),
-        startTime,
-        endTime,
-        duration,
-        increasedMileage,
-        vendor: values.vendor || '',
+        startTime: values.startTime || '',
+        endTime: values.endTime || '',
+        power: Number(values.power) || 0,
+        chargingFee: Number(values.chargingFee) || 0,
+        parkingFee: Number(values.parkingFee) || 0,
         stationName: values.stationName || '',
-        specification: values.specification || '',
-        unit: values.unit || '',
-        note: values.note || '',
-        ...numericValues
+        duration: Number(values.duration) || 0,
+        vendor: values.vendor,
+        specification: values.specification,
+        unit: values.unit,
+        note: values.note,
+        currentMileage: Number(values.currentMileage) || 0,
+        increasedMileage: Number(values.increasedMileage) || 0,
+        pricePerUnit: Number(values.pricePerUnit) || 0,
+        pricePerMinute: Number(values.pricePerMinute) || 0
       };
 
-      console.log('Saving record:', record);
-
-      if (editingRecord) {
-        await updateRecord(editingRecord.id, {
-          ...record,
-          id: editingRecord.id
-        });
-        Toast.show({
-          content: '修改記錄成功',
-          position: 'bottom',
-        });
-      } else {
-        await addRecord(record);
-        Toast.show({
-          content: '新增記錄成功',
-          position: 'bottom',
-        });
-      }
+      await addRecord(record);
+      Toast.show({
+        content: '新增記錄成功',
+        position: 'bottom',
+      });
       
       form.resetFields();
       setShowForm(false);
-      setEditingRecord(null);
       await loadRecords();
     } catch (error) {
       console.error('Failed to save record:', error);
       Toast.show({
-        content: editingRecord ? '修改記錄失敗' : '新增記錄失敗',
+        content: '新增記錄失敗',
         position: 'bottom',
       });
     } finally {
@@ -174,66 +61,156 @@ const Records: React.FC = () => {
     }
   };
 
-  const calculateChargingFee = () => {
+  const calculateFee = () => {
     const values = form.getFieldsValue();
-    const { power, pricePerUnit, pricePerMinute, startTime, endTime } = values;
-    
-    if (power && startTime && endTime) {
-      if (pricePerUnit) {
-        const fee = Math.round(power * pricePerUnit * 100) / 100;
-        form.setFieldsValue({ chargingFee: fee.toFixed(2) });
-      } else if (pricePerMinute) {
-        const duration = dayjs(endTime).diff(dayjs(startTime), 'minute');
-        const fee = Math.round(duration * pricePerMinute * 100) / 100;
-        form.setFieldsValue({ chargingFee: fee.toFixed(2) });
-      }
+    const { power, pricePerUnit, startTime, endTime, pricePerMinute } = values;
+
+    if (pricePerUnit && power) {
+      const fee = power * pricePerUnit;
+      form.setFieldValue('chargingFee', fee.toFixed(2));
+    } else if (pricePerMinute && startTime && endTime) {
+      const start = dayjs(`2000-01-01 ${startTime}`);
+      const end = dayjs(`2000-01-01 ${endTime}`);
+      const minutes = end.diff(start, 'minute');
+      const fee = minutes * pricePerMinute;
+      form.setFieldValue('chargingFee', fee.toFixed(2));
     }
-  };
-
-  const handleSelectDate = (val: Date | null) => {
-    if (val) {
-      form.setFieldsValue({ 
-        date: dayjs(val).format('YYYY-MM-DD') 
-      });
-      setShowDatePicker(false);
-    }
-  };
-
-  const showEditForm = (record: ChargingRecord) => {
-    setEditingRecord(record);
-    form.setFieldsValue({
-      ...record,
-      startTime: dayjs(record.startTime).format('HH:mm'),
-      endTime: dayjs(record.endTime).format('HH:mm')
-    });
-    setShowForm(true);
-  };
-
-  const handleDeleteRecord = async (id: string) => {
-    Dialog.confirm({
-      title: '確認刪除',
-      content: '確定要刪除此充電記錄嗎？',
-      onConfirm: async () => {
-        try {
-          await deleteRecord(id);
-          await loadRecords();
-          Toast.show({
-            content: '刪除成功',
-            position: 'bottom',
-          });
-        } catch (error) {
-          Toast.show({
-            content: '刪除失敗',
-            position: 'bottom',
-          });
-        }
-      },
-    });
   };
 
   return (
     <div className="records-page">
+      <div className="records-header">
+        <h1>充電記錄</h1>
+        <Button color="primary" onClick={() => setShowForm(true)}>
+          新增記錄
+        </Button>
+      </div>
+
       <ChargingHistory />
+
+      <Popup
+        visible={showForm}
+        onMaskClick={() => setShowForm(false)}
+        position="bottom"
+        bodyStyle={{ height: '90vh' }}
+      >
+        <div className="form-container">
+          <div className="form-header">
+            <h3>新增充電記錄</h3>
+            <Button onClick={() => setShowForm(false)}>關閉</Button>
+          </div>
+          <Form
+            form={form}
+            onFinish={onFinish}
+            layout="vertical"
+            footer={
+              <Button block type="submit" color="primary">
+                儲存
+              </Button>
+            }
+          >
+            <Form.Header>基本資訊</Form.Header>
+            <Form.Item name="date" label="充電日期" rules={[{ required: true }]}>
+              <Input type="date" placeholder="請選擇充電日期" />
+            </Form.Item>
+
+            <Form.Item 
+              name="currentMileage" 
+              label="當前里程 (km)" 
+              rules={[{ required: true }]}
+            >
+              <Input type="number" placeholder="請輸入當前里程" />
+            </Form.Item>
+
+            <Form.Header>充電資訊</Form.Header>
+            <Form.Item name="startTime" label="開始時間" rules={[{ required: true }]}>
+              <Input type="time" placeholder="請選擇開始時間" onChange={calculateFee} />
+            </Form.Item>
+
+            <Form.Item name="endTime" label="結束時間" rules={[{ required: true }]}>
+              <Input type="time" placeholder="請選擇結束時間" onChange={calculateFee} />
+            </Form.Item>
+
+            <Form.Item 
+              name="power" 
+              label="充電量 (kWh)" 
+              rules={[{ required: true }]}
+            >
+              <Input 
+                type="number" 
+                placeholder="請輸入充電量" 
+                onChange={calculateFee}
+              />
+            </Form.Item>
+
+            <Form.Header>充電站資訊</Form.Header>
+            <Form.Item name="vendor" label="充電店家" rules={[{ required: true }]}>
+              <Input placeholder="請輸入充電店家" />
+            </Form.Item>
+
+            <Form.Item name="stationName" label="充電站" rules={[{ required: true }]}>
+              <Input placeholder="請輸入充電站名稱" />
+            </Form.Item>
+
+            <Form.Item name="specification" label="充電規格">
+              <select className="form-select">
+                <option value="">請選擇充電規格</option>
+                <option value="J1772">交流慢充 - J1772</option>
+                <option value="Type2">交流慢充 - Type 2</option>
+                <option value="TPC">直流快充 - TPC (NACS)</option>
+                <option value="CCS2">直流快充 - CCS2</option>
+                <option value="CCS1">直流快充 - CCS1</option>
+              </select>
+            </Form.Item>
+
+            <Form.Header>費率資訊</Form.Header>
+            <Form.Item 
+              name="pricePerUnit" 
+              label="每度電價 (元/度)"
+              extra="填寫每度電價或每分鐘價格其中一項即可"
+            >
+              <Input 
+                type="number" 
+                placeholder="請輸入每度電價" 
+                onChange={calculateFee}
+              />
+            </Form.Item>
+
+            <Form.Item 
+              name="pricePerMinute" 
+              label="每分鐘價格 (元/分鐘)"
+            >
+              <Input 
+                type="number" 
+                placeholder="請輸入每分鐘價格" 
+                onChange={calculateFee}
+              />
+            </Form.Item>
+
+            <Form.Header>費用資訊</Form.Header>
+            <Form.Item 
+              name="chargingFee" 
+              label="充電費用 (元)" 
+              rules={[{ required: true }]}
+            >
+              <Input type="number" placeholder="充電金額將自動計算，也可手動輸入" />
+            </Form.Item>
+
+            <Form.Item name="parkingFee" label="停車費 (元)">
+              <Input type="number" placeholder="請輸入停車費" />
+            </Form.Item>
+
+            <Form.Header>其他資訊</Form.Header>
+            <Form.Item name="note" label="備註">
+              <TextArea 
+                placeholder="請輸入備註"
+                maxLength={100}
+                rows={3}
+              />
+            </Form.Item>
+          </Form>
+        </div>
+      </Popup>
     </div>
   );
 };
