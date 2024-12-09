@@ -4,9 +4,21 @@ import { useChargingStore } from '../stores/chargingStore';
 import type { ChargingRecord, ChargingStation } from '../types';
 import dayjs from 'dayjs';
 
-interface FormValues extends Omit<ChargingRecord, 'id' | 'startTime' | 'endTime'> {
+interface FormValues {
+  date: string;
   startTime: string | Date;
   endTime: string | Date;
+  power: number;
+  chargingFee: number;
+  parkingFee?: number;
+  stationName: string;
+  currentMileage?: number;
+  vendor?: string;
+  specification?: string;
+  unit?: string;
+  pricePerUnit?: number;
+  pricePerMinute?: number;
+  note?: string;
 }
 
 const CHARGING_SPECS = [
@@ -210,7 +222,7 @@ const Records: React.FC = () => {
           });
         } catch (error) {
           Toast.show({
-            content: '��除失敗',
+            content: '刪除失敗',
             position: 'bottom',
           });
         }

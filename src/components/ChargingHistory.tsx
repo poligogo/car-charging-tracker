@@ -110,7 +110,7 @@ const ChargingHistory = () => {
                   <span className="value">{record.power} kWh</span>
                 </div>
                 <div className="record-duration">
-                  <span className="label">充電���間：</span>
+                  <span className="label">充電時間：</span>
                   <span className="value">{formatDuration(record.duration)}</span>
                 </div>
               </div>
