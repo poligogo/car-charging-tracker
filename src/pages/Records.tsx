@@ -47,7 +47,8 @@ const Records: React.FC = () => {
       const newStation: Omit<ChargingStation, 'id'> = {
         vendor: newVendor,
         name: '',
-        specification: ''
+        address: '',
+        pricePerUnit: 0
       };
       await addStation(newStation);
       await loadStations();
@@ -74,7 +75,13 @@ const Records: React.FC = () => {
     loadRecords();
     loadStations();
     if (records.length > 0) {
-      setLastMileage(records[records.length - 1].currentMileage);
+      const lastRecord = records[records.length - 1];
+      const mileage = lastRecord.currentMileage;
+      if (typeof mileage === 'number') {
+        setLastMileage(mileage);
+      } else {
+        setLastMileage(0);
+      }
     }
   }, []);
 
@@ -116,7 +123,7 @@ const Records: React.FC = () => {
         stationName: values.stationName || '',
         specification: values.specification || '',
         unit: values.unit || '',
-        notes: values.notes || '',
+        note: values.note || '',
         ...numericValues
       };
 
@@ -203,7 +210,7 @@ const Records: React.FC = () => {
           });
         } catch (error) {
           Toast.show({
-            content: '刪除失敗',
+            content: '��除失敗',
             position: 'bottom',
           });
         }
@@ -268,9 +275,9 @@ const Records: React.FC = () => {
                     <span>充電費用：${record.chargingFee}</span>
                     <span>停車費用：${record.parkingFee || 0}</span>
                   </div>
-                  {record.notes && (
+                  {record.note && (
                     <div className="record-notes">
-                      備註：{record.notes}
+                      備註：{record.note}
                     </div>
                   )}
                 </div>
@@ -581,7 +588,7 @@ const Records: React.FC = () => {
             </Form.Item>
 
             <Form.Header>其他資訊</Form.Header>
-            <Form.Item name="notes" label="備註">
+            <Form.Item name="note" label="備註">
               <TextArea placeholder="請輸入備註" maxLength={100} rows={3} />
             </Form.Item>
           </Form>

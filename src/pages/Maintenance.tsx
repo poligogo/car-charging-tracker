@@ -21,6 +21,7 @@ const Maintenance: React.FC = () => {
     const newItem: MaintenanceItem = {
       id: Date.now().toString(),
       name: '',
+      interval: 0,
       quantity: 1,
       price: 0,
       total: 0
@@ -56,7 +57,6 @@ const Maintenance: React.FC = () => {
         items,
         totalCost: calculateTotalCost(),
         mileage: Number(values.mileage),
-        nextMaintenance: values.nextMaintenance ? Number(values.nextMaintenance) : undefined
       };
 
       if (editingRecord) {
@@ -92,7 +92,11 @@ const Maintenance: React.FC = () => {
 
   const showEditForm = (record: MaintenanceRecord) => {
     setEditingRecord(record);
-    setItems(record.items);
+    if (record.items) {
+      setItems(record.items);
+    } else {
+      setItems([]);
+    }
     form.setFieldsValue(record);
     setShowForm(true);
   };
@@ -154,9 +158,9 @@ const Maintenance: React.FC = () => {
                     <span>地點：{record.location}</span>
                     <span>費用：${record.totalCost}</span>
                   </div>
-                  {record.notes && (
+                  {record.note && (
                     <div className="record-row">
-                      <span>備註：{record.notes}</span>
+                      <span>備註：{record.note}</span>
                     </div>
                   )}
                 </div>

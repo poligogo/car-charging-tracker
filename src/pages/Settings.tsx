@@ -19,9 +19,10 @@ const Settings: React.FC = () => {
 
   const handleAddVehicle = async (values: Partial<Vehicle>) => {
     try {
-      if (!values.name) {
+      if (!values.name || !values.licensePlate || !values.brand || 
+          !values.model || !values.year || !values.batteryCapacity) {
         Toast.show({
-          content: '請輸入車輛名稱',
+          content: '請填寫所有必要欄位',
           position: 'bottom',
         });
         return;
@@ -29,10 +30,13 @@ const Settings: React.FC = () => {
 
       const vehicleData: Omit<Vehicle, 'id'> = {
         name: values.name,
-        imageUrl: Array.isArray(values.imageUrl) && values.imageUrl.length > 0
-          ? values.imageUrl[0].url 
-          : undefined,
-        purchaseDate: values.purchaseDate || dayjs().format('YYYY-MM-DD'),
+        licensePlate: values.licensePlate,
+        brand: values.brand,
+        model: values.model,
+        year: Number(values.year),
+        batteryCapacity: Number(values.batteryCapacity),
+        imageUrl: values.imageUrl,
+        purchaseDate: values.purchaseDate,
         isDefault: false
       };
 
@@ -495,7 +499,7 @@ const Settings: React.FC = () => {
   const exportToGoogleDrive = async () => {
     try {
       Toast.show({
-        content: '準備匯出��� Google Drive...',
+        content: '準備匯出到 Google Drive...',
         position: 'bottom',
       });
 
@@ -624,7 +628,7 @@ const Settings: React.FC = () => {
             // 繪製圖片
             ctx.drawImage(img, 0, 0, width, height);
 
-            // 檢查是否為 PNG 並保持透明度
+            // 檢查���否為 PNG 並保持透明度
             if (file.type === 'image/png') {
               // 使用 PNG 格式並保持完全品質
               const dataUrl = canvas.toDataURL('image/png', 1.0);

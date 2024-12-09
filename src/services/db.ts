@@ -1,5 +1,10 @@
 import Dexie, { Table } from 'dexie';
-import type { ChargingRecord, Vehicle, ChargingStation, MaintenanceRecord } from '../types';
+import type { 
+  ChargingRecord, 
+  Vehicle, 
+  ChargingStation, 
+  MaintenanceRecord 
+} from '../types';
 
 export class MyDatabase extends Dexie {
   records!: Table<ChargingRecord>;
@@ -15,7 +20,7 @@ export class MyDatabase extends Dexie {
       stations: 'id, name',
       vehicles: 'id, name, isDefault',
       maintenance: 'id, date, type'
-    }).upgrade(tx => {
+    }).upgrade(() => {
       console.log('Upgrading database schema...');
     });
 

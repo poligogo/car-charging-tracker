@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useChargingStore } from '../stores/chargingStore';
 import dayjs from 'dayjs';
-import type { ChargingRecord } from '../types';
-import styles from '../styles/ChargingHistory.module.css';
+import '../styles/ChargingHistory.css';
 
 const ChargingHistory = () => {
   const records = useChargingStore(state => state.records);
@@ -13,13 +12,8 @@ const ChargingHistory = () => {
   const pageSize = 10;
 
   useEffect(() => {
-    console.log('Component mounted');
     loadRecords();
   }, []);
-
-  useEffect(() => {
-    console.log('Current records:', records);
-  }, [records]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -116,7 +110,7 @@ const ChargingHistory = () => {
                   <span className="value">{record.power} kWh</span>
                 </div>
                 <div className="record-duration">
-                  <span className="label">充電時間：</span>
+                  <span className="label">充電���間：</span>
                   <span className="value">{formatDuration(record.duration)}</span>
                 </div>
               </div>

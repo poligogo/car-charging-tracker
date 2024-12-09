@@ -1,13 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useChargingStore } from '../stores/chargingStore';
-import { Collapse } from 'antd-mobile';
-import { RightOutline } from 'antd-mobile-icons';
 import dayjs from 'dayjs';
 import './Home.css';
 
-const Home: React.FC = () => {
+const Home = () => {
   const { currentVehicle, monthlyStats, totalStats, calculateMonthlyStats, records } = useChargingStore();
-  const [activeKey, setActiveKey] = useState<string[]>([]);
 
   const calculateDaysWithCar = (purchaseDate?: string) => {
     if (!purchaseDate) return null;
@@ -43,7 +40,7 @@ const Home: React.FC = () => {
           {daysWithCar && (
             <div className="days-with-car">
               <span className="cake-icon" role="img" aria-label="birthday cake">🎂</span>
-              {' '}陪伴你的第 {daysWithCar}
+              {' '}陪伴的第 {daysWithCar}
             </div>
           )}
         </div>
