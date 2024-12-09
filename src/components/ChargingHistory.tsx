@@ -9,6 +9,7 @@ const ChargingHistory = () => {
   const [selectedYear, setSelectedYear] = useState<string>(dayjs().format('YYYY'));
   const [selectedMonth, setSelectedMonth] = useState<string>(dayjs().format('MM'));
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchKeyword, setSearchKeyword] = useState('');
   const pageSize = 10;
 
   useEffect(() => {
@@ -17,12 +18,10 @@ const ChargingHistory = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedYear, selectedMonth]);
+  }, [selectedYear, selectedMonth, searchKeyword]);
 
-  const formatDate = (date: string) => {
-    return dayjs(date).format('YYYY/MM/DD');
-  };
-
+  // 格式化函數
+  const formatDate = (date: string) => dayjs(date).format('YYYY/MM/DD');
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('zh-TW', {
       style: 'currency',
@@ -30,18 +29,25 @@ const ChargingHistory = () => {
       minimumFractionDigits: 0
     }).format(amount);
   };
-
   const formatDuration = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     return `${hours}小時 ${mins}分鐘`;
   };
 
-  // 根據年月篩選記錄
+  // 篩選記錄
   const filteredRecords = records.filter(record => {
-    const recordDate = dayjs(record.date);
-    return recordDate.format('YYYY') === selectedYear && 
-           recordDate.format('MM') === selectedMonth;
+    const matchesDate = dayjs(record.date).format('YYYY') === selectedYear && 
+                       dayjs(record.date).format('MM') === selectedMonth;
+    
+    if (!searchKeyword) return matchesDate;
+
+    const keyword = searchKeyword.toLowerCase();
+    return matchesDate && (
+      record.stationName.toLowerCase().includes(keyword) ||
+      record.vendor?.toLowerCase().includes(keyword) ||
+      record.note?.toLowerCase().includes(keyword)
+    );
   });
 
   // 計算分頁
@@ -50,9 +56,15 @@ const ChargingHistory = () => {
   const paginatedRecords = filteredRecords.slice(startIndex, endIndex);
   const totalPages = Math.ceil(filteredRecords.length / pageSize);
 
+  // 計算總計
+  const pageTotal = paginatedRecords.reduce((acc, record) => ({
+    power: acc.power + record.power,
+    cost: acc.cost + record.chargingFee + (record.parkingFee || 0)
+  }), { power: 0, cost: 0 });
+
   return (
-    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-      <div style={{ marginBottom: '20px', display: 'flex', gap: '20px' }}>
+    <div className="charging-history">
+      <div className="history-header">
         <div className="filters">
           <div className="filter-group">
             <label>年份：</label>
@@ -81,64 +93,61 @@ const ChargingHistory = () => {
                 ))}
             </select>
           </div>
+
+          <div className="search-group">
+            <input
+              type="search"
+              placeholder="搜尋充電站、店家或備註..."
+              value={searchKeyword}
+              onChange={(e) => setSearchKeyword(e.target.value)}
+              className="search-input"
+            />
+          </div>
+        </div>
+
+        <div className="page-summary">
+          <div className="summary-item">
+            <span>本頁充電量：</span>
+            <span className="summary-value">{pageTotal.power.toFixed(2)} kWh</span>
+          </div>
+          <div className="summary-item">
+            <span>本頁費用：</span>
+            <span className="summary-value">{formatCurrency(pageTotal.cost)}</span>
+          </div>
         </div>
       </div>
 
-      <div style={{ marginBottom: '20px' }}>
+      <div className="records-grid">
         {paginatedRecords.map(record => (
-          <div key={record.id} style={{
-            backgroundColor: 'white',
-            border: '1px solid #eee',
-            borderRadius: '8px',
-            padding: '16px',
-            marginBottom: '12px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-          }}>
-            <div className="record-header">
-              <div className="record-date-group">
-                <span className="record-date">{formatDate(record.date)}</span>
-                <span className="record-time">
-                  {record.startTime} - {record.endTime}
-                </span>
-              </div>
-              <span className="record-station">{record.stationName}</span>
+          <div key={record.id} className="record-card">
+            <div className="record-card-header">
+              <div className="record-date">{formatDate(record.date)}</div>
+              <div className="record-station">{record.stationName}</div>
             </div>
-            <div className="record-details">
-              <div className="record-info-group">
-                <div className="record-power">
+            
+            <div className="record-card-body">
+              <div className="record-info">
+                <div className="info-row">
                   <span className="label">充電量：</span>
                   <span className="value">{record.power} kWh</span>
                 </div>
-                <div className="record-duration">
+                <div className="info-row">
                   <span className="label">充電時間：</span>
                   <span className="value">{formatDuration(record.duration)}</span>
                 </div>
-              </div>
-              <div className="record-fee-group">
-                <div className="record-charging-fee">
-                  <span className="label">充電費用：</span>
-                  <span className="value">{formatCurrency(record.chargingFee)}</span>
-                </div>
-                {record.parkingFee && record.parkingFee > 0 && (
-                  <div className="record-parking-fee">
-                    <span className="label">停車費用：</span>
-                    <span className="value">{formatCurrency(record.parkingFee)}</span>
-                  </div>
-                )}
-                <div className="record-total-fee">
-                  <span className="label">總費用：</span>
-                  <span className="value">
-                    {formatCurrency(record.chargingFee + (record.parkingFee || 0))}
-                  </span>
+                <div className="info-row">
+                  <span className="label">充電費用</span>
+                  <span className="value">{formatCurrency(record.chargingFee + (record.parkingFee || 0))}</span>
                 </div>
               </div>
+              
+              {record.note && (
+                <div className="record-note">
+                  <span className="label">備註：</span>
+                  <span className="value">{record.note}</span>
+                </div>
+              )}
             </div>
-            {record.note && (
-              <div className="record-note">
-                <span className="label">備註：</span>
-                <span className="value">{record.note}</span>
-              </div>
-            )}
           </div>
         ))}
       </div>

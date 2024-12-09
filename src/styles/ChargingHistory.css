@@ -1,15 +1,18 @@
 .charging-history {
   padding: 20px;
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
-  background-color: yellow !important;
-  border: 5px solid red !important;
+}
+
+.history-header {
+  margin-bottom: 24px;
 }
 
 .filters {
-  margin-bottom: 20px;
   display: flex;
-  gap: 20px;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
 }
 
 .filter-group {
@@ -21,6 +24,7 @@
 .filter-group label {
   font-weight: 500;
   color: #666;
+  white-space: nowrap;
 }
 
 .year-select,
@@ -30,124 +34,88 @@
   border-radius: 4px;
   background-color: white;
   min-width: 100px;
+}
+
+.search-group {
+  flex-grow: 1;
+  max-width: 300px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
   font-size: 14px;
 }
 
-.records-list {
-  margin-bottom: 20px;
+.page-summary {
+  display: flex;
+  gap: 24px;
+  padding: 12px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
 }
 
-.record-item {
-  background-color: white;
-  border: 1px solid #eee;
+.summary-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.summary-value {
+  font-weight: 600;
+  color: #1a73e8;
+}
+
+.records-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.record-card {
+  background: white;
   border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 12px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   transition: transform 0.2s ease;
 }
 
-.record-item:hover {
+.record-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-.record-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 12px;
-  color: #666;
+.record-card-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+  background: #f8f9fa;
+  border-radius: 8px 8px 0 0;
 }
 
 .record-date {
   font-weight: 500;
-  font-size: 15px;
-}
-
-.record-time {
-  color: #888;
-}
-
-.record-details {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.record-power,
-.record-fee {
   color: #333;
-  font-size: 14px;
-}
-
-.no-records {
-  text-align: center;
-  padding: 40px;
-  color: #666;
-  background: #f9f9f9;
-  border-radius: 8px;
-  font-size: 15px;
-}
-
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 16px;
-  margin-top: 24px;
-}
-
-.pagination button {
-  padding: 8px 16px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background-color: white;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.pagination button:disabled {
-  background-color: #f5f5f5;
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
-.pagination button:hover:not(:disabled) {
-  background-color: #f5f5f5;
-  border-color: #ccc;
-}
-
-.pagination span {
-  color: #666;
-  font-size: 14px;
-}
-
-.record-date-group {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
 }
 
 .record-station {
-  color: #666;
   font-size: 14px;
-  background: #f5f5f5;
-  padding: 4px 8px;
-  border-radius: 4px;
+  color: #666;
+  margin-top: 4px;
 }
 
-.record-info-group,
-.record-fee-group {
+.record-card-body {
+  padding: 16px;
+}
+
+.record-info {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.record-power,
-.record-duration,
-.record-charging-fee,
-.record-parking-fee,
-.record-total-fee {
+.info-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -163,21 +131,50 @@
   color: #333;
 }
 
-.record-total-fee {
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px dashed #eee;
-}
-
-.record-total-fee .value {
-  color: #1a73e8;
-  font-weight: 600;
-}
-
 .record-note {
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid #eee;
+  border-top: 1px dashed #eee;
   font-size: 14px;
-  color: #666;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+
+.pagination button {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination button:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.pagination button:hover:not(:disabled) {
+  background: #f5f5f5;
+  border-color: #ccc;
+}
+
+@media (max-width: 768px) {
+  .records-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .filters {
+    flex-direction: column;
+  }
+  
+  .search-group {
+    max-width: 100%;
+  }
 } 
