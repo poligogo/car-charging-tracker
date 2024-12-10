@@ -22,6 +22,10 @@ export interface Vehicle {
   id: string;           // ID（系統生成）
   name: string;         // 汽車名稱（必填）
   licensePlate: string; // 車牌號碼（選填，但型別上必須有值）
+  brand: string;        // 品牌（必填）
+  model: string;        // 型號（必填）
+  year: number;         // 年份（必填）
+  batteryCapacity: number; // 電池容量（必填）
   imageUrl?: string;    // 車輛照片（選填）
   purchaseDate?: string;// 購買日期（選填）
   isDefault: boolean;   // 是否為預設車輛

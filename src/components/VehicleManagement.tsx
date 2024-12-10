@@ -23,7 +23,11 @@ const VehicleManagement: React.FC = () => {
 
       const vehicleData: Omit<Vehicle, 'id'> = {
         name: values.name,
-        licensePlate: values.licensePlate || '',  // 提供空字串作為預設值
+        licensePlate: values.licensePlate || '',
+        brand: 'default',           // 提供默認值
+        model: 'default',           // 提供默認值
+        year: 2023,                 // 提供默認值
+        batteryCapacity: 100,       // 提供默認值
         imageUrl: values.imageUrl && Array.isArray(values.imageUrl) && values.imageUrl.length > 0
           ? values.imageUrl[0].url
           : undefined,
@@ -80,7 +84,11 @@ const VehicleManagement: React.FC = () => {
         onFinish={handleAddVehicle}
         initialValues={{
           purchaseDate: dayjs().format('YYYY-MM-DD'),
-          licensePlate: ''  // 提供空字串作為預設值
+          licensePlate: '',
+          brand: 'default',
+          model: 'default',
+          year: 2023,
+          batteryCapacity: 100
         }}
         footer={
           <Button block type='submit' color='primary'>
@@ -122,6 +130,20 @@ const VehicleManagement: React.FC = () => {
             }}
           />
         </Form.Item>
+
+        {/* 隱藏的必填欄位 */}
+        <Form.Item name='brand' hidden>
+          <Input />
+        </Form.Item>
+        <Form.Item name='model' hidden>
+          <Input />
+        </Form.Item>
+        <Form.Item name='year' hidden>
+          <Input type="number" />
+        </Form.Item>
+        <Form.Item name='batteryCapacity' hidden>
+          <Input type="number" />
+        </Form.Item>
       </Form>
     );
 
@@ -155,7 +177,11 @@ const VehicleManagement: React.FC = () => {
 
       const updatedVehicle: Partial<Vehicle> = {
         name: values.name,
-        licensePlate: values.licensePlate || '',  // 提供空字串作為預設值
+        licensePlate: values.licensePlate || '',
+        brand: currentEditingVehicle.brand,
+        model: currentEditingVehicle.model,
+        year: currentEditingVehicle.year,
+        batteryCapacity: currentEditingVehicle.batteryCapacity,
         imageUrl: imageUrl,
         purchaseDate: values.purchaseDate,
         isDefault: currentEditingVehicle.isDefault,
@@ -185,7 +211,11 @@ const VehicleManagement: React.FC = () => {
     editForm.resetFields();
     editForm.setFieldsValue({
       name: vehicle.name,
-      licensePlate: vehicle.licensePlate || '',  // 提供空字串作為預設值
+      licensePlate: vehicle.licensePlate,
+      brand: vehicle.brand,
+      model: vehicle.model,
+      year: vehicle.year,
+      batteryCapacity: vehicle.batteryCapacity,
       imageUrl: vehicle.imageUrl ? [{ url: vehicle.imageUrl }] : [],
       purchaseDate: vehicle.purchaseDate
     });
@@ -197,7 +227,11 @@ const VehicleManagement: React.FC = () => {
         onFinish={handleEditVehicle}
         initialValues={{
           name: vehicle.name,
-          licensePlate: vehicle.licensePlate || '',  // 提供空字串作為預設值
+          licensePlate: vehicle.licensePlate,
+          brand: vehicle.brand,
+          model: vehicle.model,
+          year: vehicle.year,
+          batteryCapacity: vehicle.batteryCapacity,
           imageUrl: vehicle.imageUrl ? [{ url: vehicle.imageUrl }] : [],
           purchaseDate: vehicle.purchaseDate
         }}
@@ -240,6 +274,20 @@ const VehicleManagement: React.FC = () => {
               }
             }}
           />
+        </Form.Item>
+
+        {/* 隱藏的必填欄位 */}
+        <Form.Item name='brand' hidden>
+          <Input />
+        </Form.Item>
+        <Form.Item name='model' hidden>
+          <Input />
+        </Form.Item>
+        <Form.Item name='year' hidden>
+          <Input type="number" />
+        </Form.Item>
+        <Form.Item name='batteryCapacity' hidden>
+          <Input type="number" />
         </Form.Item>
       </Form>
     );
