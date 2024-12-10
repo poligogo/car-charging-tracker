@@ -10,14 +10,21 @@ export interface ChargingRecord {
   duration: number;
   chargingFee: number;
   parkingFee?: number;
+  currentMileage: number;
+  increasedMileage?: number;
+  pricePerUnit?: number;
+  pricePerMinute?: number;
+  unit?: string;
+  note?: string;
 }
 
 export interface Vehicle {
-  id: string;
-  name: string;
-  imageUrl?: string;
-  isDefault: boolean;
-  purchaseDate?: string;
+  id: string;           // ID（系統生成）
+  name: string;         // 汽車名稱（必填）
+  licensePlate: string; // 車牌號碼（選填，但型別上必須有值）
+  imageUrl?: string;    // 車輛照片（選填）
+  purchaseDate?: string;// 購買日期（選填）
+  isDefault: boolean;   // 是否為預設車輛
 }
 
 export interface ChargingStation {
@@ -52,4 +59,4 @@ export interface MaintenanceRecord {
   totalCost: number;         // 總費用
   nextMaintenance?: number;
   notes?: string;
-} 
+}

@@ -12,9 +12,22 @@ const Records: React.FC = () => {
   const [form] = Form.useForm();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const power = Form.useWatch('power', form);
+  const pricePerUnit = Form.useWatch('pricePerUnit', form);
+  const startTime = Form.useWatch('startTime', form);
+  const endTime = Form.useWatch('endTime', form);
+  const pricePerMinute = Form.useWatch('pricePerMinute', form);
+  const currentMileage = Form.useWatch('currentMileage', form);
+
   useEffect(() => {
     loadRecords();
   }, []);
+
+  useEffect(() => {
+    if (power || pricePerUnit || startTime || endTime || pricePerMinute || currentMileage) {
+      calculateFee();
+    }
+  }, [power, pricePerUnit, startTime, endTime, pricePerMinute, currentMileage]);
 
   const onFinish = async (values: Partial<ChargingRecord>) => {
     if (isSubmitting) return;
@@ -23,7 +36,7 @@ const Records: React.FC = () => {
       setIsSubmitting(true);
       
       const record: Omit<ChargingRecord, 'id'> = {
-        date: dayjs().format('YYYY-MM-DD'),
+        date: values.date || dayjs().format('YYYY-MM-DD'),
         startTime: values.startTime || '',
         endTime: values.endTime || '',
         power: Number(values.power) || 0,
@@ -31,8 +44,8 @@ const Records: React.FC = () => {
         parkingFee: Number(values.parkingFee) || 0,
         stationName: values.stationName || '',
         duration: Number(values.duration) || 0,
-        vendor: values.vendor,
-        specification: values.specification,
+        vendor: values.vendor || '',
+        specification: values.specification || '',
         unit: values.unit,
         note: values.note,
         currentMileage: Number(values.currentMileage) || 0,
@@ -77,13 +90,13 @@ const Records: React.FC = () => {
     const { power, pricePerUnit, startTime, endTime, pricePerMinute } = values;
 
     try {
+      const updates: Record<string, any> = {};
       let fee = 0;
       let duration = 0;
-      let roundedFee = 0;
 
       if (startTime && endTime) {
         duration = calculateDuration(startTime, endTime);
-        form.setFieldValue('duration', duration);
+        updates.duration = duration;
       }
 
       if (pricePerUnit && power) {
@@ -93,27 +106,31 @@ const Records: React.FC = () => {
       }
 
       if (fee > 0) {
-        roundedFee = Math.round(fee * 100) / 100;
-        form.setFieldValue('chargingFee', roundedFee.toFixed(2));
+        const roundedFee = Math.round(fee * 100) / 100;
+        updates.chargingFee = roundedFee.toFixed(2);
 
         if (power > 0) {
           const avgPrice = roundedFee / power;
-          form.setFieldValue('avgPrice', avgPrice.toFixed(3));
+          updates.avgPrice = avgPrice.toFixed(3);
         }
       }
 
-      const currentMileage = Number(values.currentMileage);
+      const currentMileageNum = Number(values.currentMileage);
       const lastRecord = useChargingStore.getState().records[0];
-      if (lastRecord && currentMileage) {
-        const increasedMileage = currentMileage - (lastRecord.currentMileage || 0);
+      if (lastRecord && currentMileageNum) {
+        const increasedMileage = currentMileageNum - (lastRecord.currentMileage || 0);
         if (increasedMileage > 0) {
-          form.setFieldValue('increasedMileage', increasedMileage);
+          updates.increasedMileage = increasedMileage;
           
-          if (roundedFee > 0) {
-            const costPerKm = roundedFee / increasedMileage;
-            form.setFieldValue('costPerKm', costPerKm.toFixed(2));
+          if (fee > 0) {
+            const costPerKm = fee / increasedMileage;
+            updates.costPerKm = costPerKm.toFixed(2);
           }
         }
+      }
+
+      if (Object.keys(updates).length > 0) {
+        form.setFieldsValue(updates);
       }
     } catch (error) {
       console.error('計算費用時發生錯誤:', error);
@@ -121,15 +138,6 @@ const Records: React.FC = () => {
         content: '計算費用時發生錯誤',
         position: 'bottom',
       });
-    }
-  };
-
-  const handleFieldChange = (field: string, value: any) => {
-    form.setFieldValue(field, value);
-    
-    const triggerFields = ['power', 'pricePerUnit', 'startTime', 'endTime', 'pricePerMinute', 'currentMileage'];
-    if (triggerFields.includes(field)) {
-      calculateFee();
     }
   };
 
@@ -159,6 +167,15 @@ const Records: React.FC = () => {
             form={form}
             onFinish={onFinish}
             layout="vertical"
+            initialValues={{
+              date: dayjs().format('YYYY-MM-DD'),
+              avgPrice: '',
+              costPerKm: '',
+              specification: '',
+              parkingFee: 0,
+              duration: 0,
+              increasedMileage: 0
+            }}
             footer={
               <Button block type="submit" color="primary">
                 儲存
@@ -180,11 +197,11 @@ const Records: React.FC = () => {
 
             <Form.Header>充電資訊</Form.Header>
             <Form.Item name="startTime" label="開始時間" rules={[{ required: true }]}>
-              <Input type="time" placeholder="請選擇開始時間" onChange={calculateFee} />
+              <Input type="time" placeholder="請選擇開始時間" />
             </Form.Item>
 
             <Form.Item name="endTime" label="結束時間" rules={[{ required: true }]}>
-              <Input type="time" placeholder="請選擇結束時間" onChange={calculateFee} />
+              <Input type="time" placeholder="請選擇結束時間" />
             </Form.Item>
 
             <Form.Item 
@@ -192,26 +209,14 @@ const Records: React.FC = () => {
               label="充電量 (kWh)" 
               rules={[{ required: true }]}
             >
-              <Input 
-                type="number" 
-                placeholder="請輸入充電量" 
-                onChange={value => handleFieldChange('power', value)}
-              />
+              <Input type="number" placeholder="請輸入充電量" />
             </Form.Item>
 
-            <Form.Item 
-              name="avgPrice" 
-              label="平均單價 (元/kWh)"
-              disabled
-            >
+            <Form.Item name="avgPrice" label="平均單價 (元/kWh)">
               <Input readOnly />
             </Form.Item>
 
-            <Form.Item 
-              name="costPerKm" 
-              label="每公里成本 (元/km)"
-              disabled
-            >
+            <Form.Item name="costPerKm" label="每公里成本 (元/km)">
               <Input readOnly />
             </Form.Item>
 
@@ -241,22 +246,14 @@ const Records: React.FC = () => {
               label="每度電價 (元/度)"
               extra="填寫每度電價或每分鐘價格其中一項即可"
             >
-              <Input 
-                type="number" 
-                placeholder="請輸入每度電價" 
-                onChange={calculateFee}
-              />
+              <Input type="number" placeholder="請輸入每度電價" />
             </Form.Item>
 
             <Form.Item 
               name="pricePerMinute" 
               label="每分鐘價格 (元/分鐘)"
             >
-              <Input 
-                type="number" 
-                placeholder="請輸入每分鐘價格" 
-                onChange={calculateFee}
-              />
+              <Input type="number" placeholder="請輸入每分鐘價格" />
             </Form.Item>
 
             <Form.Header>費用資訊</Form.Header>
