@@ -1,87 +1,107 @@
 .statistics-page {
   padding: 16px;
-  background-color: var(--background-primary);
-  min-height: calc(100vh - 50px);
+  background-color: var(--bg-primary);
+  min-height: 100vh;
+  color: var(--text-primary);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .charts-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 1fr;
   gap: 16px;
+  margin-top: 16px;
+  width: 100%;
 }
 
 .chart-container {
-  background-color: var(--card-background);
-  border-radius: 12px;
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
   padding: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  aspect-ratio: 4/3;
+  min-height: 250px;
+  max-height: 400px;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
-@media (max-width: 768px) {
-  .charts-grid {
-    grid-template-columns: 1fr;
-  }
-} 
+.chart-container > div {
+  width: 100% !important;
+  height: 100% !important;
+}
 
-/* 空狀態樣式 */
 .empty-state {
   display: flex;
-  align-items: center;
   justify-content: center;
-  min-height: calc(100vh - 150px);
-  padding: 20px;
-  text-align: center;
+  align-items: center;
+  height: 80vh;
 }
 
 .empty-description {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  color: var(--text-secondary);
-}
-
-.empty-description p {
-  margin: 0;
+  color: var(--text-primary);
+  text-align: center;
 }
 
 .empty-hint {
+  color: var(--text-hint);
   font-size: 14px;
-  color: var(--text-tertiary);
+  margin-top: 8px;
 }
 
-/* 自定義 Empty 組件的圖片 */
-:global(.adm-empty-image) {
-  opacity: 0.8;
-}
-
-/* 確保圖表容器在有數據時的樣式正確 */
-.charts-grid {
-  opacity: 1;
-  transition: opacity 0.3s ease;
-}
-
-.chart-container {
-  background-color: var(--card-background);
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: var(--card-shadow);
-  min-height: 300px;
-  display: flex;
-  flex-direction: column;
-}
-
-/* 添加載入動畫 */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+/* 平板和桌面版響應式設計 */
+@media (min-width: 768px) {
+  .charts-grid {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 1200px;
+    margin: 16px auto;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  
+  .chart-container {
+    aspect-ratio: 16/9;
   }
 }
 
-.charts-grid {
-  animation: fadeIn 0.3s ease-out;
-} 
+/* 大螢幕響應式設計 */
+@media (min-width: 1200px) {
+  .statistics-page {
+    padding: 24px;
+  }
+  
+  .charts-grid {
+    gap: 24px;
+  }
+}
+
+/* 小螢幕響應式設計 */
+@media (max-width: 480px) {
+  .statistics-page {
+    padding: 12px;
+  }
+  
+  .charts-grid {
+    gap: 12px;
+  }
+  
+  .chart-container {
+    padding: 12px;
+    aspect-ratio: 1/1;
+  }
+}
+
+/* 深色模式適配 */
+@media (prefers-color-scheme: dark) {
+  .chart-container {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  .empty-description {
+    color: var(--text-primary);
+  }
+  
+  .empty-hint {
+    color: var(--text-secondary);
+  }
+}

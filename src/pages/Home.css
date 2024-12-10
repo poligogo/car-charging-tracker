@@ -1,140 +1,67 @@
 .home-page {
   padding: 16px;
-  background-color: var(--background-primary);
-  min-height: calc(100vh - 50px);
+  background-color: var(--bg-primary);
+  min-height: 100vh;
+  color: var(--text-primary);
 }
 
-/* 車輛展示區 */
 .vehicle-display {
-  background: linear-gradient(145deg, var(--card-background), var(--background-tertiary));
-  border-radius: 24px;
-  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
   margin-bottom: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(8px);
-  position: relative;
-  overflow: hidden;
-}
-
-.vehicle-display::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, 
-    transparent, 
-    rgba(255, 255, 255, 0.2), 
-    transparent
-  );
+  padding: 16px;
+  background-color: var(--bg-secondary);
+  border-radius: 12px;
 }
 
 .vehicle-image-container {
-  width: 100%;
-  height: 220px;
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
   overflow: hidden;
-  border-radius: 16px;
-  margin-bottom: 20px;
-  position: relative;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  background-color: var(--bg-secondary);
 }
 
 .vehicle-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-.vehicle-image:hover {
-  transform: scale(1.02);
 }
 
 .vehicle-info {
-  text-align: center;
-  position: relative;
-  z-index: 1;
+  flex: 1;
 }
 
 .vehicle-name {
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
   color: var(--text-primary);
-  font-size: 28px;
-  font-weight: 600;
-  margin-bottom: 12px;
-  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
 }
 
 .days-with-car {
+  margin-top: 4px;
+  font-size: 14px;
   color: var(--text-secondary);
-  font-size: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 20px;
-  backdrop-filter: blur(4px);
-  width: fit-content;
-  margin: 0 auto;
 }
 
-.cake-icon {
-  font-size: 18px;
-  line-height: 1;
-}
-
-/* 統計卡片區域 */
 .stats-cards {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
   gap: 16px;
-  margin-top: 24px;
 }
 
 .stats-card {
-  background: var(--card-background);
-  border-radius: 20px;
-  padding: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.stats-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-}
-
-.stats-card.monthly {
-  background: linear-gradient(135deg, 
-    rgba(74, 144, 226, 0.1), 
-    rgba(74, 144, 226, 0.02)
-  );
-  border: 1px solid rgba(74, 144, 226, 0.1);
-}
-
-.stats-card.total {
-  background: linear-gradient(135deg, 
-    rgba(80, 200, 120, 0.1), 
-    rgba(80, 200, 120, 0.02)
-  );
-  border: 1px solid rgba(80, 200, 120, 0.1);
+  background-color: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 16px;
 }
 
 .stats-card-header {
   font-size: 18px;
-  font-weight: 600;
+  font-weight: bold;
+  margin-bottom: 16px;
   color: var(--text-primary);
-  margin-bottom: 20px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--card-border);
-  position: relative;
 }
 
 .stats-grid {
@@ -144,82 +71,31 @@
 }
 
 .stats-item {
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 16px;
-  transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.stats-item:hover {
-  transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.05);
+  text-align: center;
 }
 
 .stats-value {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--accent-primary);
-  margin-bottom: 8px;
-  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--primary-color);
+  margin-bottom: 4px;
 }
 
 .stats-label {
   font-size: 14px;
   color: var(--text-secondary);
-  font-weight: 500;
 }
 
 /* 響應式設計 */
-@media (max-width: 768px) {
-  .stats-cards {
-    grid-template-columns: 1fr;
+@media (min-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
   }
+}
 
+/* 深色模式適配 */
+@media (prefers-color-scheme: dark) {
   .vehicle-image-container {
-    height: 180px;
-  }
-
-  .stats-value {
-    font-size: 20px;
-  }
-
-  .vehicle-name {
-    font-size: 24px;
+    border: 1px solid var(--chart-grid);
   }
 }
-
-/* 添加動畫效果 */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.home-page {
-  animation: fadeIn 0.3s ease-out;
-}
-
-/* 霓虹光效果 */
-@keyframes glow {
-  0% {
-    box-shadow: 0 0 5px rgba(74, 144, 226, 0.2);
-  }
-  50% {
-    box-shadow: 0 0 20px rgba(74, 144, 226, 0.4);
-  }
-  100% {
-    box-shadow: 0 0 5px rgba(74, 144, 226, 0.2);
-  }
-}
-
-.stats-card:hover {
-  animation: glow 2s infinite;
-} 

@@ -1,59 +1,116 @@
-import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
 import { TabBar } from 'antd-mobile';
-import {
+import { 
   AppOutline,
-  BankcardOutline,
   UnorderedListOutline,
-  UserOutline,
-  SetOutline
+  SetOutline,
+  PieOutline,
+  EditSOutline
 } from 'antd-mobile-icons';
-import { Home, Records, Statistics, Settings, Maintenance } from './pages';
-import ErrorBoundary from './components/ErrorBoundary';
-import { useEffect } from 'react';
-import { useChargingStore } from './stores/chargingStore';
+import { useLocation, useNavigate, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import Records from './pages/Records';
+import Statistics from './pages/Statistics';
+import Settings from './pages/Settings';
+import Maintenance from './pages/Maintenance';
+import { useThemeStore } from './stores/themeStore';
+import './App.css';
+import './styles/theme.css';
 
-const TabBarWrapper = () => {
+const App: React.FC = () => {
+  const location = useLocation();
   const navigate = useNavigate();
-  const { loadRecords, calculateMonthlyStats } = useChargingStore();
-  
-  useEffect(() => {
-    const initializeData = async () => {
-      await loadRecords();
-      const currentMonth = new Date().toISOString().slice(0, 7);
-      await calculateMonthlyStats(currentMonth);
-    };
+  const { theme } = useThemeStore();
 
-    initializeData();
-  }, [loadRecords, calculateMonthlyStats]);
-  
+  // 初始化主題
+  useEffect(() => {
+    // 移除所有主題類
+    document.documentElement.classList.remove('theme-light', 'theme-dark');
+    
+    // 根據存儲的主題設置應用主題
+    if (theme !== 'system') {
+      document.documentElement.classList.add(`theme-${theme}`);
+    }
+
+    // 更新 meta theme-color
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (metaThemeColor) {
+      if (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        metaThemeColor.setAttribute('content', '#1a1a1a'); // 深色模式背景色
+      } else {
+        metaThemeColor.setAttribute('content', '#ffffff'); // 淺色模式背景色
+      }
+    }
+
+    // 監聽系統主題變化
+    if (theme === 'system') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handleThemeChange = (e: MediaQueryListEvent) => {
+        if (metaThemeColor) {
+          metaThemeColor.setAttribute('content', e.matches ? '#1a1a1a' : '#ffffff');
+        }
+      };
+      mediaQuery.addEventListener('change', handleThemeChange);
+      return () => mediaQuery.removeEventListener('change', handleThemeChange);
+    }
+  }, [theme]);
+
+  const tabs = [
+    {
+      key: '/',
+      title: '首頁',
+      icon: <AppOutline />,
+    },
+    {
+      key: '/records',
+      title: '充電記錄',
+      icon: <UnorderedListOutline />,
+    },
+    {
+      key: '/maintenance',
+      title: '維修',
+      icon: <EditSOutline />,
+    },
+    {
+      key: '/statistics',
+      title: '統計',
+      icon: <PieOutline />,
+    },
+    {
+      key: '/settings',
+      title: '設定',
+      icon: <SetOutline />,
+    },
+  ];
+
   return (
-    <TabBar onChange={value => navigate(value)}>
-      <TabBar.Item title="首頁" icon={<AppOutline />} key="/" />
-      <TabBar.Item title="充電記錄" icon={<BankcardOutline />} key="/records" />
-      <TabBar.Item title="統計" icon={<UnorderedListOutline />} key="/statistics" />
-      <TabBar.Item title="維修紀錄" icon={<UserOutline />} key="/maintenance" />
-      <TabBar.Item title="設定" icon={<SetOutline />} key="/settings" />
-    </TabBar>
+    <div className="app">
+      <div className="app-body">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/records" element={<Records />} />
+          <Route path="/maintenance" element={<Maintenance />} />
+          <Route path="/statistics" element={<Statistics />} />
+          <Route path="/settings" element={<Settings />} />
+        </Routes>
+      </div>
+      <div className="bottom-nav">
+        <TabBar
+          activeKey={location.pathname}
+          onChange={value => navigate(value)}
+          className="tab-bar"
+        >
+          {tabs.map(item => (
+            <TabBar.Item
+              key={item.key}
+              icon={item.icon}
+              title={item.title}
+            />
+          ))}
+        </TabBar>
+      </div>
+    </div>
   );
 };
-
-function App() {
-  return (
-    <ErrorBoundary>
-      <BrowserRouter>
-        <div className="app">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/records" element={<Records />} />
-            <Route path="/statistics" element={<Statistics />} />
-            <Route path="/maintenance" element={<Maintenance />} />
-            <Route path="/settings" element={<Settings />} />
-          </Routes>
-          <TabBarWrapper />
-        </div>
-      </BrowserRouter>
-    </ErrorBoundary>
-  );
-}
 
 export default App;

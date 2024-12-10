@@ -1,13 +1,16 @@
 import React, { useRef } from 'react';
-import { List, Button, Toast } from 'antd-mobile';
+import { List, Button, Toast, Radio } from 'antd-mobile';
 import VehicleManagement from '../components/VehicleManagement';
 import { useChargingStore } from '../stores/chargingStore';
+import { useThemeStore } from '../stores/themeStore';
 import { db } from '../services/db';
 import dayjs from 'dayjs';
 import '../styles/Settings.css';
+import '../styles/theme.css';
 
 const Settings: React.FC = () => {
   const { records, maintenanceRecords, loadRecords } = useChargingStore();
+  const { theme, setTheme } = useThemeStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -165,6 +168,24 @@ const Settings: React.FC = () => {
       <h1>設定</h1>
       
       <VehicleManagement />
+
+      <List header='外觀設定' style={{ marginTop: 20 }}>
+        <List.Item>
+          <div className="theme-selector">
+            <span>主題模式</span>
+            <Radio.Group
+              value={theme}
+              onChange={value => setTheme(value as 'light' | 'dark' | 'system')}
+            >
+              <div className="radio-options">
+                <Radio value='light'>淺色</Radio>
+                <Radio value='dark'>深色</Radio>
+                <Radio value='system'>跟隨系統</Radio>
+              </div>
+            </Radio.Group>
+          </div>
+        </List.Item>
+      </List>
 
       <List header='資料管理' style={{ marginTop: 20 }}>
         <List.Item

@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useChargingStore } from '../stores/chargingStore';
 import * as echarts from 'echarts';
+import type { EChartsOption } from 'echarts';
 import dayjs from 'dayjs';
 import { Empty } from 'antd-mobile';
 import './Statistics.css';
+import '../styles/theme.css';
 
 interface MonthlyData {
   month: string;
@@ -25,6 +27,12 @@ const Statistics: React.FC = () => {
   const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);
   const [stationStats, setStationStats] = useState<StationStats[]>([]);
   const [hasData, setHasData] = useState(false);
+  const [charts, setCharts] = useState<echarts.ECharts[]>([]);
+
+  // 獲取 CSS 變量的值
+  const getCssVar = (name: string) => {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  };
 
   useEffect(() => {
     // 檢查是否有數據
@@ -87,122 +95,320 @@ const Statistics: React.FC = () => {
   useEffect(() => {
     if (monthlyData.length === 0) return;
 
-    // 費用趨勢圖
-    const costChart = echarts.init(document.getElementById('costChart'));
-    costChart.setOption({
-      title: { text: '月度費用趨勢', textStyle: { color: '#ffffff' } },
-      tooltip: { trigger: 'axis' },
+    const isSmallScreen = window.innerWidth <= 480;
+
+    // 通用圖表配置
+    const baseChartConfig: EChartsOption = {
+      backgroundColor: getCssVar('--bg-chart'),
+      textStyle: {
+        color: getCssVar('--chart-text')
+      },
+      title: {
+        textStyle: {
+          color: getCssVar('--chart-text'),
+          fontSize: isSmallScreen ? 14 : 16
+        },
+        left: 'center',
+        top: '5%'
+      },
+      tooltip: {
+        backgroundColor: getCssVar('--bg-secondary'),
+        borderColor: getCssVar('--chart-grid'),
+        textStyle: {
+          color: getCssVar('--chart-text'),
+          fontSize: isSmallScreen ? 12 : 14
+        },
+        confine: true
+      },
+      grid: {
+        top: '15%',
+        left: '10%',
+        right: '5%',
+        bottom: '12%',
+        containLabel: true
+      },
       xAxis: {
         type: 'category',
-        data: monthlyData.map(d => dayjs(d.month).format('MM/YYYY')),
-        axisLabel: { color: '#b3b3b3' }
+        axisLine: {
+          lineStyle: {
+            color: getCssVar('--chart-axis')
+          }
+        },
+        axisLabel: {
+          color: getCssVar('--chart-axis'),
+          interval: 0,
+          rotate: isSmallScreen ? 45 : 0,
+          fontSize: isSmallScreen ? 10 : 12
+        },
+        splitLine: {
+          lineStyle: {
+            color: getCssVar('--chart-grid')
+          }
+        }
       },
       yAxis: {
         type: 'value',
-        name: '費用 ($)',
-        nameTextStyle: { color: '#b3b3b3' },
-        axisLabel: { color: '#b3b3b3' }
+        axisLine: {
+          lineStyle: {
+            color: getCssVar('--chart-axis')
+          }
+        },
+        axisLabel: {
+          color: getCssVar('--chart-axis'),
+          fontSize: isSmallScreen ? 10 : 12
+        },
+        splitLine: {
+          lineStyle: {
+            color: getCssVar('--chart-grid')
+          }
+        },
+        nameTextStyle: {
+          color: getCssVar('--chart-axis'),
+          fontSize: isSmallScreen ? 12 : 14,
+          padding: [0, 0, 0, isSmallScreen ? 25 : 40]
+        }
+      }
+    };
+
+    // 清除現有圖表
+    charts.forEach(chart => chart.dispose());
+    const newCharts: echarts.ECharts[] = [];
+
+    // 費用趨勢圖
+    const costChart = echarts.init(document.getElementById('costChart'));
+    newCharts.push(costChart);
+    const costOption: EChartsOption = {
+      ...baseChartConfig,
+      title: { text: '月度費用趨勢' },
+      tooltip: { trigger: 'axis' },
+      xAxis: {
+        ...baseChartConfig.xAxis,
+        data: monthlyData.map(d => dayjs(d.month).format('MM/YYYY'))
+      },
+      yAxis: {
+        ...baseChartConfig.yAxis,
+        name: '費用 ($)'
       },
       series: [{
         type: 'line',
         data: monthlyData.map(d => d.cost),
-        itemStyle: { color: '#4a90e2' },
-        areaStyle: { opacity: 0.2 }
-      }],
-      backgroundColor: 'transparent'
-    });
+        itemStyle: { color: getCssVar('--chart-line') },
+        areaStyle: { 
+          color: getCssVar('--chart-line'),
+          opacity: 0.2 
+        },
+        smooth: true,
+        symbolSize: isSmallScreen ? 4 : 6
+      }]
+    };
+    costChart.setOption(costOption);
 
     // 充電度數圖
     const powerChart = echarts.init(document.getElementById('powerChart'));
-    powerChart.setOption({
-      title: { text: '月度充電度數', textStyle: { color: '#ffffff' } },
+    newCharts.push(powerChart);
+    const powerOption: EChartsOption = {
+      ...baseChartConfig,
+      title: { text: '月度充電度數' },
       tooltip: { trigger: 'axis' },
       xAxis: {
-        type: 'category',
-        data: monthlyData.map(d => dayjs(d.month).format('MM/YYYY')),
-        axisLabel: { color: '#b3b3b3' }
+        ...baseChartConfig.xAxis,
+        data: monthlyData.map(d => dayjs(d.month).format('MM/YYYY'))
       },
       yAxis: {
-        type: 'value',
-        name: '度數 (kWh)',
-        nameTextStyle: { color: '#b3b3b3' },
-        axisLabel: { color: '#b3b3b3' }
+        ...baseChartConfig.yAxis,
+        name: '度數 (kWh)'
       },
       series: [{
         type: 'bar',
         data: monthlyData.map(d => d.power),
-        itemStyle: { color: '#50c878' }
-      }],
-      backgroundColor: 'transparent'
-    });
+        itemStyle: { color: getCssVar('--chart-bar1') },
+        barMaxWidth: isSmallScreen ? '40%' : '50%'
+      }]
+    };
+    powerChart.setOption(powerOption);
 
     // 充電時長圖
     const durationChart = echarts.init(document.getElementById('durationChart'));
-    durationChart.setOption({
-      title: { text: '月度充電時長', textStyle: { color: '#ffffff' } },
+    newCharts.push(durationChart);
+    const durationOption: EChartsOption = {
+      ...baseChartConfig,
+      title: { text: '月度充電時長' },
       tooltip: { trigger: 'axis' },
       xAxis: {
-        type: 'category',
-        data: monthlyData.map(d => dayjs(d.month).format('MM/YYYY')),
-        axisLabel: { color: '#b3b3b3' }
+        ...baseChartConfig.xAxis,
+        data: monthlyData.map(d => dayjs(d.month).format('MM/YYYY'))
       },
       yAxis: {
-        type: 'value',
-        name: '時長 (分鐘)',
-        nameTextStyle: { color: '#b3b3b3' },
-        axisLabel: { color: '#b3b3b3' }
+        ...baseChartConfig.yAxis,
+        name: '時長 (分鐘)'
       },
       series: [{
         type: 'bar',
         data: monthlyData.map(d => d.duration),
-        itemStyle: { color: '#ff6b6b' }
-      }],
-      backgroundColor: 'transparent'
-    });
+        itemStyle: { color: getCssVar('--chart-bar2') },
+        barMaxWidth: isSmallScreen ? '40%' : '50%'
+      }]
+    };
+    durationChart.setOption(durationOption);
 
     // 常用站點圖
     const stationChart = echarts.init(document.getElementById('stationChart'));
-    stationChart.setOption({
-      title: { text: '常用充電站點', textStyle: { color: '#ffffff' } },
+    newCharts.push(stationChart);
+    const stationOption: EChartsOption = {
+      ...baseChartConfig,
+      title: { text: '常用充電站點' },
       tooltip: {
         trigger: 'item',
-        formatter: '{b}: {c}次 ({d}%)'
+        formatter: '{b}: {c}次 ({d}%)',
+        position: function (pos, params, dom, rect, size) {
+          // 根據螢幕寬度調整提示框位置
+          if (window.innerWidth <= 480) {
+            return [pos[0] - size.contentSize[0] / 2, pos[1]];
+          }
+          return pos;
+        }
       },
       series: [{
         type: 'pie',
-        radius: '65%',
+        radius: isSmallScreen ? ['35%', '65%'] : ['40%', '70%'],
+        center: ['50%', '55%'],
         data: stationStats.map(s => ({
           name: s.name,
           value: s.count
         })),
         itemStyle: {
           color: (params: any) => {
-            const colors = ['#4a90e2', '#50c878', '#ff6b6b', '#ffd700', '#9370db'];
+            const colors = [
+              getCssVar('--chart-pie1'),
+              getCssVar('--chart-pie2'),
+              getCssVar('--chart-pie3'),
+              getCssVar('--chart-pie4'),
+              getCssVar('--chart-pie5')
+            ];
             return colors[params.dataIndex % colors.length];
           }
         },
         label: {
-          color: '#ffffff'
+          show: true,
+          color: getCssVar('--chart-text'),
+          formatter: isSmallScreen ? '{b}\n{c}次' : '{b}: {c}次 ({d}%)',
+          position: isSmallScreen ? 'inner' : 'outside',
+          fontSize: isSmallScreen ? 10 : 12,
+          lineHeight: isSmallScreen ? 12 : 16
+        },
+        labelLine: {
+          show: !isSmallScreen,
+          length: isSmallScreen ? 10 : 15,
+          length2: isSmallScreen ? 5 : 10
         }
-      }],
-      backgroundColor: 'transparent'
-    });
+      }]
+    };
+    stationChart.setOption(stationOption);
+
+    setCharts(newCharts);
 
     // 響應式處理
     const handleResize = () => {
-      costChart.resize();
-      powerChart.resize();
-      durationChart.resize();
-      stationChart.resize();
+      const isSmallScreen = window.innerWidth <= 480;
+      
+      newCharts.forEach((chart, index) => {
+        chart.resize();
+        
+        // 獲取對應的選項
+        const options = [costOption, powerOption, durationOption, stationOption];
+        const currentOption = options[index];
+        
+        if (currentOption) {
+          const updatedOption = { ...currentOption };
+          
+          // 更新標題字體大小
+          if (updatedOption.title) {
+            (updatedOption.title as any).textStyle = {
+              ...(updatedOption.title as any).textStyle,
+              fontSize: isSmallScreen ? 14 : 16
+            };
+          }
+
+          // 更新 X 軸設置
+          if (updatedOption.xAxis && typeof updatedOption.xAxis === 'object') {
+            (updatedOption.xAxis as any).axisLabel = {
+              ...(updatedOption.xAxis as any).axisLabel,
+              fontSize: isSmallScreen ? 10 : 12,
+              rotate: isSmallScreen ? 45 : 0
+            };
+          }
+
+          // 更新 Y 軸設置
+          if (updatedOption.yAxis && typeof updatedOption.yAxis === 'object') {
+            const yAxis = updatedOption.yAxis as any;
+            yAxis.axisLabel = {
+              ...yAxis.axisLabel,
+              fontSize: isSmallScreen ? 10 : 12
+            };
+            yAxis.nameTextStyle = {
+              ...yAxis.nameTextStyle,
+              fontSize: isSmallScreen ? 12 : 14,
+              padding: [0, 0, 0, isSmallScreen ? 25 : 40]
+            };
+          }
+
+          // 更新系列設置
+          if (updatedOption.series && Array.isArray(updatedOption.series)) {
+            const series = updatedOption.series[0] as any;
+            if (series) {
+              if (series.type === 'pie') {
+                series.radius = isSmallScreen ? ['35%', '65%'] : ['40%', '70%'];
+                series.label = {
+                  ...series.label,
+                  position: isSmallScreen ? 'inner' : 'outside',
+                  formatter: isSmallScreen ? '{b}\n{c}次' : '{b}: {c}次 ({d}%)',
+                  fontSize: isSmallScreen ? 10 : 12,
+                  lineHeight: isSmallScreen ? 12 : 16,
+                  show: true
+                };
+                series.labelLine = {
+                  show: !isSmallScreen,
+                  length: isSmallScreen ? 10 : 15,
+                  length2: isSmallScreen ? 5 : 10
+                };
+              } else if (series.type === 'bar') {
+                series.barMaxWidth = isSmallScreen ? '40%' : '50%';
+              } else if (series.type === 'line') {
+                series.symbolSize = isSmallScreen ? 4 : 6;
+              }
+            }
+          }
+
+          chart.setOption(updatedOption);
+        }
+      });
     };
+
+    // 監聽系統主題變化
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleThemeChange = () => {
+      newCharts.forEach(chart => {
+        const option = chart.getOption();
+        if (option) {
+          (option as any).backgroundColor = getCssVar('--bg-chart');
+          if ((option as any).textStyle) {
+            (option as any).textStyle.color = getCssVar('--chart-text');
+          }
+          chart.setOption(option);
+        }
+      });
+    };
+
     window.addEventListener('resize', handleResize);
+    mediaQuery.addListener(handleThemeChange);
+
+    // 初始調整大小
+    handleResize();
 
     return () => {
       window.removeEventListener('resize', handleResize);
-      costChart.dispose();
-      powerChart.dispose();
-      durationChart.dispose();
-      stationChart.dispose();
+      mediaQuery.removeListener(handleThemeChange);
+      newCharts.forEach(chart => chart.dispose());
     };
   }, [monthlyData, stationStats]);
 
@@ -228,20 +434,20 @@ const Statistics: React.FC = () => {
     <div className="statistics-page">
       <div className="charts-grid">
         <div className="chart-container">
-          <div id="costChart" style={{ width: '100%', height: '300px' }} />
+          <div id="costChart" style={{ width: '100%', height: '100%' }} />
         </div>
         <div className="chart-container">
-          <div id="powerChart" style={{ width: '100%', height: '300px' }} />
+          <div id="powerChart" style={{ width: '100%', height: '100%' }} />
         </div>
         <div className="chart-container">
-          <div id="durationChart" style={{ width: '100%', height: '300px' }} />
+          <div id="durationChart" style={{ width: '100%', height: '100%' }} />
         </div>
         <div className="chart-container">
-          <div id="stationChart" style={{ width: '100%', height: '300px' }} />
+          <div id="stationChart" style={{ width: '100%', height: '100%' }} />
         </div>
       </div>
     </div>
   );
 };
 
-export default Statistics; 
+export default Statistics;

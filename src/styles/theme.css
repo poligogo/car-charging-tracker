@@ -1,112 +1,103 @@
+/* 淺色主題變量（默認） */
 :root {
-  /* 主要背景色 */
-  --background-primary: #1a1a1a;
-  --background-secondary: #2d2d2d;
-  --background-tertiary: #404040;
-  
+  /* 基礎顏色 */
+  --primary-color: #4a90e2;
+  --success-color: #50c878;
+  --warning-color: #ffd700;
+  --danger-color: #ff6b6b;
+  --purple-color: #9370db;
+
+  /* 文字顏色 */
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --text-hint: #999999;
+
+  /* 背景顏色 */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --bg-chart: transparent;
+
+  /* 圖表顏色 */
+  --chart-text: #333333;
+  --chart-axis: #666666;
+  --chart-grid: #e0e0e0;
+  --chart-line: var(--primary-color);
+  --chart-bar1: var(--success-color);
+  --chart-bar2: var(--danger-color);
+  --chart-pie1: var(--primary-color);
+  --chart-pie2: var(--success-color);
+  --chart-pie3: var(--danger-color);
+  --chart-pie4: var(--warning-color);
+  --chart-pie5: var(--purple-color);
+}
+
+/* 手動設置的淺色主題 */
+.theme-light {
+  /* 基礎顏色 */
+  --primary-color: #4a90e2;
+  --success-color: #50c878;
+  --warning-color: #ffd700;
+  --danger-color: #ff6b6b;
+  --purple-color: #9370db;
+
+  /* 文字顏色 */
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --text-hint: #999999;
+
+  /* 背景顏色 */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --bg-chart: transparent;
+
+  /* 圖表顏色 */
+  --chart-text: #333333;
+  --chart-axis: #666666;
+  --chart-grid: #e0e0e0;
+  --chart-line: var(--primary-color);
+  --chart-bar1: var(--success-color);
+  --chart-bar2: var(--danger-color);
+  --chart-pie1: var(--primary-color);
+  --chart-pie2: var(--success-color);
+  --chart-pie3: var(--danger-color);
+  --chart-pie4: var(--warning-color);
+  --chart-pie5: var(--purple-color);
+}
+
+/* 手動設置的深色主題 */
+.theme-dark {
   /* 文字顏色 */
   --text-primary: #ffffff;
   --text-secondary: #b3b3b3;
-  --text-tertiary: #808080;
-  
-  /* 強調色 */
-  --accent-primary: #4a90e2;    /* 藍色 */
-  --accent-secondary: #50c878;  /* 綠色 */
-  --accent-danger: #ff6b6b;     /* 紅色 */
-  
-  /* 卡片和容器 */
-  --card-background: #2d2d2d;
-  --card-border: #404040;
-  
-  /* 輸入框 */
-  --input-background: #404040;
-  --input-border: #575757;
-  --input-text: #ffffff;
-  
-  /* 按鈕 */
-  --button-primary: #4a90e2;
-  --button-primary-text: #ffffff;
-  --button-secondary: #404040;
-  --button-secondary-text: #ffffff;
+  --text-hint: #808080;
+
+  /* 背景顏色 */
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --bg-chart: transparent;
+
+  /* 圖表顏色 */
+  --chart-text: #ffffff;
+  --chart-axis: #b3b3b3;
+  --chart-grid: #404040;
 }
 
-/* 全局樣式 */
-body {
-  background-color: var(--background-primary);
-  color: var(--text-primary);
-}
+/* 系統深色模式（當沒有手動設置主題時生效） */
+@media (prefers-color-scheme: dark) {
+  :root:not(.theme-light):not(.theme-dark) {
+    /* 文字顏色 */
+    --text-primary: #ffffff;
+    --text-secondary: #b3b3b3;
+    --text-hint: #808080;
 
-/* 卡片樣式 */
-.adm-card {
-  background-color: var(--card-background);
-  border: 1px solid var(--card-border);
-}
+    /* 背景顏色 */
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-chart: transparent;
 
-/* 列表樣式 */
-.adm-list-item {
-  background-color: var(--card-background);
-  color: var(--text-primary);
+    /* 圖表顏色 */
+    --chart-text: #ffffff;
+    --chart-axis: #b3b3b3;
+    --chart-grid: #404040;
+  }
 }
-
-/* 輸入框樣式 */
-.adm-input {
-  background-color: var(--input-background);
-  border-color: var(--input-border);
-  color: var(--input-text);
-}
-
-/* 按鈕樣式 */
-.adm-button {
-  background-color: var(--button-primary);
-  color: var(--button-primary-text);
-}
-
-.adm-button--secondary {
-  background-color: var(--button-secondary);
-  color: var(--button-secondary-text);
-}
-
-/* 統計卡片樣式 */
-.stats-card {
-  background-color: var(--card-background);
-  border: 1px solid var(--card-border);
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 16px;
-}
-
-.stats-card-title {
-  color: var(--text-secondary);
-  font-size: 14px;
-  margin-bottom: 8px;
-}
-
-.stats-card-value {
-  color: var(--text-primary);
-  font-size: 24px;
-  font-weight: bold;
-}
-
-/* 表單標籤樣式 */
-.adm-form-item-label {
-  color: var(--text-secondary) !important;
-}
-
-/* 下拉選單樣式 */
-.dropdown-content {
-  background-color: var(--card-background);
-  border: 1px solid var(--card-border);
-}
-
-/* TabBar 樣式 */
-.adm-tab-bar {
-  background-color: var(--background-secondary);
-}
-
-.adm-tab-bar-item {
-  color: var(--text-secondary);
-}
-
-.adm-tab-bar-item-active {
-  color: var(--accent-primary);
-} 

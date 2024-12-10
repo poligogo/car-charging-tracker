@@ -1,61 +1,86 @@
-.vehicle-image {
-  width: 100%;
-  height: 200px;
-  overflow: hidden;
-  border-radius: 12px;
-  background-color: transparent;
+.settings-page {
+  padding: 16px;
+  background-color: var(--bg-primary);
+  min-height: 100vh;
+  color: var(--text-primary);
+}
+
+.theme-selector {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  background-image: linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
-    linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
-    linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
-  background-size: 20px 20px;
-  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.theme-selector span {
+  color: var(--text-primary);
+  font-size: 16px;
+}
+
+.radio-options {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.radio-options :global(.adm-radio) {
+  --adm-color-primary: var(--primary-color);
+  --adm-color-text: var(--text-primary);
+}
+
+.radio-options :global(.adm-radio-content) {
+  color: var(--text-primary);
+}
+
+.vehicle-image {
+  width: 48px;
+  height: 48px;
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: var(--bg-secondary);
 }
 
 .vehicle-image img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  background: none;
-  mix-blend-mode: multiply;
+  object-fit: cover;
 }
 
-/* 圖片上傳器樣式 */
-.adm-image-uploader {
-  --adm-color-background: transparent;
+/* List 樣式 */
+:global(.adm-list) {
+  --adm-color-background: var(--bg-secondary);
+  --adm-color-text: var(--text-primary);
+  --adm-color-border: var(--chart-grid);
 }
 
-.adm-image-uploader-cell {
-  background: transparent;
-  border-radius: 12px;
-  overflow: hidden;
+:global(.adm-list-header) {
+  color: var(--text-secondary);
 }
 
-.adm-image-uploader-cell-image {
-  background: transparent !important;
-  object-fit: contain !important;
+:global(.adm-list-item) {
+  background-color: var(--bg-secondary);
 }
 
-/* 預覽容器 */
-.image-preview-container {
-  background: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  overflow: hidden;
+:global(.adm-list-item-content) {
+  color: var(--text-primary);
 }
 
-/* 添加棋盤格背景到上傳預覽區域 */
-:global(.adm-image-uploader-upload-button),
-:global(.adm-image-uploader-cell) {
-  background-image: linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
-    linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
-    linear-gradient(-45deg, transparent 75%, #f0f0f0 75%) !important;
-  background-size: 20px 20px !important;
-  background-position: 0 0, 0 10px, 10px -10px, -10px 0px !important;
-} 
+/* Button 樣式 */
+:global(.adm-button) {
+  --adm-color-primary: var(--primary-color);
+  --adm-color-text: var(--text-primary);
+}
+
+/* 響應式設計 */
+@media (min-width: 768px) {
+  .settings-page {
+    max-width: 768px;
+    margin: 0 auto;
+  }
+}
+
+/* 深色模式適配 */
+@media (prefers-color-scheme: dark) {
+  .vehicle-image {
+    border: 1px solid var(--chart-grid);
+  }
+}
