@@ -154,15 +154,24 @@ const Records: React.FC = () => {
 
       <Popup
         visible={showForm}
-        onMaskClick={() => setShowForm(false)}
+        onMaskClick={() => {
+          form.resetFields();
+          setShowForm(false);
+        }}
         position="bottom"
         bodyStyle={{ height: '90vh' }}
       >
         <div className="form-container">
           <div className="form-header">
             <h3>新增充電記錄</h3>
-            <Button onClick={() => setShowForm(false)}>關閉</Button>
+            <Button onClick={() => {
+              form.resetFields();
+              setShowForm(false);
+            }}>
+              關閉
+            </Button>
           </div>
+
           <Form
             form={form}
             onFinish={onFinish}
@@ -176,107 +185,125 @@ const Records: React.FC = () => {
               duration: 0,
               increasedMileage: 0
             }}
-            footer={
-              <Button block type="submit" color="primary">
+            style={{ height: 'calc(100% - 60px)', overflowY: 'auto' }}
+          >
+            <div style={{ padding: '0 16px 80px' }}>
+              <Form.Header>基本資訊</Form.Header>
+              <Form.Item name="date" label="充電日期" rules={[{ required: true }]}>
+                <Input type="date" placeholder="請選擇充電日期" />
+              </Form.Item>
+
+              <Form.Item 
+                name="currentMileage" 
+                label="當前里程 (km)" 
+                rules={[{ required: true }]}
+              >
+                <Input type="number" placeholder="請輸入當前里程" />
+              </Form.Item>
+
+              <Form.Header>充電資訊</Form.Header>
+              <Form.Item name="startTime" label="開始時間" rules={[{ required: true }]}>
+                <Input type="time" placeholder="請選擇開始時間" />
+              </Form.Item>
+
+              <Form.Item name="endTime" label="結束時間" rules={[{ required: true }]}>
+                <Input type="time" placeholder="請選擇結束時間" />
+              </Form.Item>
+
+              <Form.Item 
+                name="power" 
+                label="充電量 (kWh)" 
+                rules={[{ required: true }]}
+              >
+                <Input type="number" placeholder="請輸入充電量" />
+              </Form.Item>
+
+              <Form.Item name="avgPrice" label="平均單價 (元/kWh)">
+                <Input readOnly />
+              </Form.Item>
+
+              <Form.Item name="costPerKm" label="每公里成本 (元/km)">
+                <Input readOnly />
+              </Form.Item>
+
+              <Form.Header>充電站資訊</Form.Header>
+              <Form.Item name="vendor" label="充電店家" rules={[{ required: true }]}>
+                <Input placeholder="請輸入充電店家" />
+              </Form.Item>
+
+              <Form.Item name="stationName" label="充電站" rules={[{ required: true }]}>
+                <Input placeholder="請輸入充電站名稱" />
+              </Form.Item>
+
+              <Form.Item name="specification" label="充電規格">
+                <select className="form-select">
+                  <option value="">請選擇充電規格</option>
+                  <option value="J1772">交流慢充 - J1772</option>
+                  <option value="Type2">交流慢充 - Type 2</option>
+                  <option value="TPC">直流快充 - TPC (NACS)</option>
+                  <option value="CCS2">直流快充 - CCS2</option>
+                  <option value="CCS1">直流快充 - CCS1</option>
+                </select>
+              </Form.Item>
+
+              <Form.Header>費率資訊</Form.Header>
+              <Form.Item 
+                name="pricePerUnit" 
+                label="每度電價 (元/度)"
+                extra="填寫每度電價或每分鐘價格其中一項即可"
+              >
+                <Input type="number" placeholder="請輸入每度電價" />
+              </Form.Item>
+
+              <Form.Item 
+                name="pricePerMinute" 
+                label="每分鐘價格 (元/分鐘)"
+              >
+                <Input type="number" placeholder="請輸入每分鐘價格" />
+              </Form.Item>
+
+              <Form.Header>費用資訊</Form.Header>
+              <Form.Item 
+                name="chargingFee" 
+                label="充電費用 (元)" 
+                rules={[{ required: true }]}
+              >
+                <Input type="number" placeholder="充電金額將自動計算，也可手動輸入" />
+              </Form.Item>
+
+              <Form.Item name="parkingFee" label="停車費 (元)">
+                <Input type="number" placeholder="請輸入停車費" />
+              </Form.Item>
+
+              <Form.Header>其他資訊</Form.Header>
+              <Form.Item name="note" label="備註">
+                <TextArea 
+                  placeholder="請輸入備註"
+                  maxLength={100}
+                  rows={3}
+                  showCount
+                />
+              </Form.Item>
+            </div>
+
+            <div style={{
+              position: 'fixed',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              padding: '12px 16px',
+              backgroundColor: 'var(--bg-primary)',
+              borderTop: '1px solid var(--chart-grid)'
+            }}>
+              <Button
+                block
+                type="submit"
+                color="primary"
+                loading={isSubmitting}
+              >
                 儲存
               </Button>
-            }
-          >
-            <Form.Header>基本資訊</Form.Header>
-            <Form.Item name="date" label="充電日期" rules={[{ required: true }]}>
-              <Input type="date" placeholder="請選擇充電日期" />
-            </Form.Item>
-
-            <Form.Item 
-              name="currentMileage" 
-              label="當前里程 (km)" 
-              rules={[{ required: true }]}
-            >
-              <Input type="number" placeholder="請輸入當前里程" />
-            </Form.Item>
-
-            <Form.Header>充電資訊</Form.Header>
-            <Form.Item name="startTime" label="開始時間" rules={[{ required: true }]}>
-              <Input type="time" placeholder="請選擇開始時間" />
-            </Form.Item>
-
-            <Form.Item name="endTime" label="結束時間" rules={[{ required: true }]}>
-              <Input type="time" placeholder="請選擇結束時間" />
-            </Form.Item>
-
-            <Form.Item 
-              name="power" 
-              label="充電量 (kWh)" 
-              rules={[{ required: true }]}
-            >
-              <Input type="number" placeholder="請輸入充電量" />
-            </Form.Item>
-
-            <Form.Item name="avgPrice" label="平均單價 (元/kWh)">
-              <Input readOnly />
-            </Form.Item>
-
-            <Form.Item name="costPerKm" label="每公里成本 (元/km)">
-              <Input readOnly />
-            </Form.Item>
-
-            <Form.Header>充電站資訊</Form.Header>
-            <Form.Item name="vendor" label="充電店家" rules={[{ required: true }]}>
-              <Input placeholder="請輸入充電店家" />
-            </Form.Item>
-
-            <Form.Item name="stationName" label="充電站" rules={[{ required: true }]}>
-              <Input placeholder="請輸入充電站名稱" />
-            </Form.Item>
-
-            <Form.Item name="specification" label="充電規格">
-              <select className="form-select">
-                <option value="">請選擇充電規格</option>
-                <option value="J1772">交流慢充 - J1772</option>
-                <option value="Type2">交流慢充 - Type 2</option>
-                <option value="TPC">直流快充 - TPC (NACS)</option>
-                <option value="CCS2">直流快充 - CCS2</option>
-                <option value="CCS1">直流快充 - CCS1</option>
-              </select>
-            </Form.Item>
-
-            <Form.Header>費率資訊</Form.Header>
-            <Form.Item 
-              name="pricePerUnit" 
-              label="每度電價 (元/度)"
-              extra="填寫每度電價或每分鐘價格其中一項即可"
-            >
-              <Input type="number" placeholder="請輸入每度電價" />
-            </Form.Item>
-
-            <Form.Item 
-              name="pricePerMinute" 
-              label="每分鐘價格 (元/分鐘)"
-            >
-              <Input type="number" placeholder="請輸入每分鐘價格" />
-            </Form.Item>
-
-            <Form.Header>費用資訊</Form.Header>
-            <Form.Item 
-              name="chargingFee" 
-              label="充電費用 (元)" 
-              rules={[{ required: true }]}
-            >
-              <Input type="number" placeholder="充電金額將自動計算，也可手動輸入" />
-            </Form.Item>
-
-            <Form.Item name="parkingFee" label="停車費 (元)">
-              <Input type="number" placeholder="請輸入停車費" />
-            </Form.Item>
-
-            <Form.Header>其他資訊</Form.Header>
-            <Form.Item name="note" label="備註">
-              <TextArea 
-                placeholder="請輸入備註"
-                maxLength={100}
-                rows={3}
-              />
-            </Form.Item>
+            </div>
           </Form>
         </div>
       </Popup>

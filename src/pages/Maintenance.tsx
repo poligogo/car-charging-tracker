@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { List, Button, Dialog, Form, Input, Toast, SwipeAction, Card } from 'antd-mobile';
+import { List, Button, Popup, Form, Input, Toast, SwipeAction, Card, Dialog } from 'antd-mobile';
 import { AddOutline, DeleteOutline } from 'antd-mobile-icons';
 import { useChargingStore } from '../stores/chargingStore';
 import type { MaintenanceRecord, MaintenanceItem } from '../types';
@@ -12,6 +12,7 @@ const Maintenance: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingRecord, setEditingRecord] = useState<MaintenanceRecord | null>(null);
   const [items, setItems] = useState<MaintenanceItem[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     loadMaintenanceRecords();
@@ -51,7 +52,10 @@ const Maintenance: React.FC = () => {
   };
 
   const handleSubmit = async (values: Partial<MaintenanceRecord>) => {
+    if (isSubmitting) return;
+
     try {
+      setIsSubmitting(true);
       const record = {
         ...values,
         items,
@@ -87,6 +91,8 @@ const Maintenance: React.FC = () => {
         content: editingRecord ? '修改失敗' : '新增失敗',
         position: 'bottom',
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -125,7 +131,20 @@ const Maintenance: React.FC = () => {
 
   return (
     <div className="maintenance-page">
-      <h1>維修記錄</h1>
+      <div className="records-header">
+        <h1>維修記錄</h1>
+        <Button
+          color="primary"
+          onClick={() => {
+            setEditingRecord(null);
+            setItems([]);
+            form.resetFields();
+            setShowForm(true);
+          }}
+        >
+          新增記錄
+        </Button>
+      </div>
       
       <List>
         {maintenanceRecords.map(record => (
@@ -170,46 +189,38 @@ const Maintenance: React.FC = () => {
         ))}
       </List>
 
-      <Button
-        block
-        color="primary"
-        onClick={() => {
+      <Popup
+        visible={showForm}
+        onMaskClick={() => {
+          setShowForm(false);
           setEditingRecord(null);
           setItems([]);
           form.resetFields();
-          setShowForm(true);
         }}
-        style={{ margin: '16px' }}
+        position="bottom"
+        bodyStyle={{ height: '90vh' }}
       >
-        新增記錄
-      </Button>
-
-      <Dialog
-        visible={showForm}
-        content={
-          <div className="maintenance-form">
-            <div className="form-header">
-              <h3>{editingRecord ? '修改維修記錄' : '新增維修記錄'}</h3>
-              <Button onClick={() => {
-                setShowForm(false);
-                setEditingRecord(null);
-                setItems([]);
-                form.resetFields();
-              }}>
-                關閉
-              </Button>
-            </div>
-            
-            <Form
-              form={form}
-              onFinish={handleSubmit}
-              layout="vertical"
-              footer={
-                <Button block type="submit" color="primary">
-                  確認
-                </Button>
-              }
-            >
+        <div className="form-container">
+          <div className="form-header">
+            <h3>{editingRecord ? '修改維修記錄' : '新增維修記錄'}</h3>
+            <Button onClick={() => {
+              setShowForm(false);
+              setEditingRecord(null);
+              setItems([]);
+              form.resetFields();
+            }}>
+              關閉
+            </Button>
+          </div>
+          
+          <Form
+            form={form}
+            onFinish={handleSubmit}
+            layout="vertical"
+            style={{ height: 'calc(100% - 60px)', overflowY: 'auto' }}
+          >
+            <div style={{ padding: '0 16px 80px' }}>
+              <Form.Header>基本資訊</Form.Header>
               <Form.Item name="type" label="維修類型" rules={[{ required: true }]}>
                 <Input placeholder="請輸入維修類型" />
               </Form.Item>
@@ -227,9 +238,10 @@ const Maintenance: React.FC = () => {
                 />
               </Form.Item>
 
+              <Form.Header>維修項目</Form.Header>
               <div className="maintenance-items">
                 <div className="items-header">
-                  <h4>維修項目</h4>
+                  <h4>維修項目列表</h4>
                   <Button
                     size='small'
                     onClick={addItem}
@@ -282,20 +294,31 @@ const Maintenance: React.FC = () => {
                   總費用: ${calculateTotalCost()}
                 </div>
               </div>
-            </Form>
-          </div>
-        }
-        closeOnAction
-        closeOnMaskClick
-        onClose={() => {
-          setShowForm(false);
-          setEditingRecord(null);
-          setItems([]);
-          form.resetFields();
-        }}
-      />
+            </div>
+
+            <div style={{
+              position: 'fixed',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              padding: '12px 16px',
+              backgroundColor: 'var(--bg-primary)',
+              borderTop: '1px solid var(--chart-grid)'
+            }}>
+              <Button
+                block
+                type="submit"
+                color="primary"
+                loading={isSubmitting}
+              >
+                儲存
+              </Button>
+            </div>
+          </Form>
+        </div>
+      </Popup>
     </div>
   );
 };
 
-export default Maintenance; 
+export default Maintenance;

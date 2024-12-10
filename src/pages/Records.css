@@ -20,6 +20,8 @@
 .form-container {
   padding: 16px;
   background-color: var(--bg-primary);
+  height: 100%;
+  overflow-y: auto;
 }
 
 .form-header {
@@ -27,11 +29,23 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+  background-color: var(--bg-primary);
+  padding-bottom: 16px;
 }
 
 .form-header h3 {
   margin: 0;
   color: var(--text-primary);
+}
+
+:global(.adm-form) {
+  --adm-color-text: var(--text-primary);
+  --adm-color-border: var(--chart-grid);
+}
+
+:global(.adm-popup-body) {
+  background-color: var(--bg-primary);
+  height: 90vh !important;
 }
 
 /* antd-mobile 組件樣式覆蓋 */
@@ -43,11 +57,6 @@
 
 :global(.adm-list-item) {
   background-color: var(--bg-secondary);
-}
-
-:global(.adm-form) {
-  --adm-color-text: var(--text-primary);
-  --adm-color-border: var(--chart-grid);
 }
 
 :global(.adm-form-item-label) {
@@ -66,10 +75,6 @@
   --adm-color-border: var(--chart-grid);
 }
 
-:global(.adm-popup-body) {
-  background-color: var(--bg-primary);
-}
-
 :global(.form-select) {
   width: 100%;
   padding: 8px;
@@ -86,6 +91,12 @@
 
 :global(.adm-form-item-extra) {
   color: var(--text-hint) !important;
+}
+
+:global(.adm-form-footer) {
+  padding: 16px;
+  background-color: var(--bg-primary);
+  border-top: 1px solid var(--chart-grid);
 }
 
 /* 深色模式特定樣式 */
